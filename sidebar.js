@@ -8,15 +8,22 @@ fetch('sidebar.html')
 .then(data => {
     document.getElementById('sidebar-container').innerHTML = data;
 
-    const currentPage = window.location.pathname.split('/').pop().replace('.html', '');
+    const currentPage = window.location.pathname.split('/').pop().replace('.html', '').trim().toLowerCase();
     const menuItems = document.querySelectorAll('.menu-item');
 
-    if (currentPage === '') {
-        const dashboardItem = document.querySelector('.menu-item[data-page="dashboard"]');
-        if (dashboardItem) {
-            dashboardItem.classList.add('active');
+    const pagesWithSameMenuItem = {
+        'student-management': ['add-edit-student', 'view-student']
+    };
+
+    Object.keys(pagesWithSameMenuItem).forEach(menuItem => {
+        const pages = pagesWithSameMenuItem[menuItem];
+        if (pages.map(page => page.toLowerCase()).includes(currentPage)) {
+            const menuItemElement = document.querySelector(`.menu-item[data-page="${menuItem}"]`);
+            if (menuItemElement) {
+                menuItemElement.classList.add('active');
+            }
         }
-    }
+    });
 
     menuItems.forEach(item => {
         const pageName = item.getAttribute('data-page');
@@ -47,11 +54,11 @@ const sidebar = document.querySelector('.sidebar');
 const backdrop = document.querySelector('.sidebar-backdrop');
 
 mobileMenuButton.addEventListener('click', () => {
-sidebar.classList.toggle('active');
-backdrop.classList.toggle('active');
+    sidebar.classList.toggle('active');
+    backdrop.classList.toggle('active');
 });
 
 backdrop.addEventListener('click', () => {
-sidebar.classList.remove('active');
-backdrop.classList.remove('active');
+    sidebar.classList.remove('active');
+    backdrop.classList.remove('active');
 });

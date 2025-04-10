@@ -1,6 +1,5 @@
-/* Modern Sidebar Styles */
 .sidebar {
-    width: 280px;
+    width: 280px !important;
     min-height: 100vh;
     background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
     color: #f8fafc;
@@ -9,29 +8,28 @@
     top: 0;
     display: flex;
     flex-direction: column;
-    padding: 1rem; /* Reduced padding to shrink overall size */
+    padding: 1rem;
     box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
     z-index: 50;
     font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-right: 1px solid rgba(255, 255, 255, 0.05);
-    justify-content: space-between; /* Keeps the logout button at the bottom */
+    justify-content: space-between;
 }
 
-/* Adjusted Sidebar Content Layout */
 .sidebar-content {
     flex-grow: 1;
-    padding-bottom: 1rem; /* Space at the bottom for logout button */
+    padding-bottom: 1rem;
 }
 
 .sidebar-header {
-    padding: 0.25rem 0 1rem; /* Reduced top padding to make the header smaller */
+    padding: 0.25rem 0 1rem;
     margin-bottom: 0.5rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .sidebar-header h3 {
-    font-size: 1.1rem; /* Reduced header font size */
+    font-size: 1.1rem;
     font-weight: 600;
     color: #7dd3fc;
     letter-spacing: 0.5px;
@@ -60,7 +58,7 @@
     border-radius: 0.5rem;
     text-decoration: none;
     color: #e2e8f0;
-    font-size: 0.95rem;
+    font-size: 0.75rem;
     font-weight: 500;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -135,33 +133,32 @@
     }
 }
 
-/* Logout Button Special Styling */
 .sidebar .logout-container {
-    margin-top: auto; /* Ensures logout button is at the bottom */
-    padding-bottom: 1.5rem; /* Reduced bottom padding */
+    margin-top: auto;
+    padding-bottom: 1.5rem;
     display: flex;
-    justify-content: center; /* Centers the logout button horizontally */
+    justify-content: center;
     width: 100%;
 }
 
 .sidebar .logout-container .menu-item {
     color: #fca5a5;
-    padding: 1rem 1.5rem; /* Keep the increased padding for better spacing */
-    text-align: center; /* Ensures text is centered */
-    width: 100%; /* Make sure the button spans the full width */
-    box-sizing: border-box; /* Ensures padding does not affect width */
+    padding: 1rem 1.5rem;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .sidebar .logout-container .menu-item:hover {
     background-color: rgba(30, 41, 59, 0.5);
     color: #f87171;
-    box-shadow: 0 0 10px rgba(248, 113, 113, 0.5); /* Added glow effect */
+    box-shadow: 0 0 10px rgba(248, 113, 113, 0.5);
 }
 
 .sidebar .logout-container .menu-item.active {
     background: linear-gradient(90deg, rgba(248, 113, 113, 0.15) 0%, rgba(248, 113, 113, 0.3) 100%);
     color: #f87171;
-    font-weight: bold; /* Ensure font is bold for clarity */
+    font-weight: bold;
 }
 
 .sidebar .logout-container .menu-item.active::after {
@@ -169,18 +166,16 @@
     box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.3);
 }
 
-/* Ensuring button text and box sizes */
 .sidebar .logout-container .menu-item {
-    word-wrap: break-word; /* Allows the text to break onto new lines if necessary */
-    white-space: normal; /* Ensures text isn't clipped in a single line */
-    overflow: visible; /* Prevents clipping of text */
+    word-wrap: break-word;
+    white-space: normal;
+    overflow: visible;
 }
 
-/* Responsiveness for smaller screens */
 @media (max-width: 640px) {
     .sidebar .logout-container .menu-item {
-        font-size: 1rem; /* Make font size a bit smaller for smaller screens */
-        padding: 0.75rem 1.2rem; /* Adjust padding for smaller screens */
+        font-size: 1rem;
+        padding: 0.75rem 1.2rem;
     }
 }
 
@@ -190,15 +185,59 @@
 }
 
 .main-content {
-    margin-left: 0 !important;
+    margin-left: 280px;
+    padding: 1rem;
+    background-color: #f7fafc;
+    z-index: 10;
+    width: calc(100% - 280px);
+    max-width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 240px !important;
+    }
+
+    .main-content {
+        margin-left: 240px;
+        width: calc(100% - 240px);
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 200px !important;
+    }
+
+    .main-content {
+        margin-left: 200px;
+        width: calc(100% - 200px);
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        width: 150px !important;
+    }
+
+    .main-content {
+        margin-left: 150px;
+        width: calc(100% - 150px);
+        gap: 0.25rem;
+        padding: 0.5rem;
+    }
+}
 .mobile-menu-button {
     display: block;
-    z-index: 60; /* Ensure the button stays on top */
+    z-index: 60;
 }
 
-/* Mobile Menu Toggle Button */
 .mobile-menu-button {
     display: none;
     position: fixed;
@@ -219,7 +258,6 @@
     background-color: #334155;
 }
 
-/* Backdrop for mobile menu */
 .sidebar-backdrop {
     position: fixed;
     top: 0;
@@ -250,6 +288,6 @@
     }
     
     .sidebar-header h3 {
-        font-size: 1rem; /* Slightly smaller header font */
+        font-size: 1rem;
     }
 }
