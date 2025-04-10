@@ -12,7 +12,7 @@ fetch('sidebar.html')
     const menuItems = document.querySelectorAll('.menu-item');
 
     const pagesWithSameMenuItem = {
-        'student-management': ['add-edit-student', 'view-student']
+        'student-management': ['add-edit-student', 'view-student','borrow-history']
     };
 
     Object.keys(pagesWithSameMenuItem).forEach(menuItem => {

@@ -7,10 +7,43 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="sidebar.css">
+    <style>
+
+        .sidebar-item {
+            padding: 10px;
+            color: white;
+            text-decoration: none;
+            display: block;
+        }
+
+        .sidebar-item:hover {
+            background-color: #4A5568;
+        }
+
+        /* Main content layout */
+        .main-content {
+
+            width: calc(100% - 250px); /* Makes sure content fits the remaining width */
+        }
+
+
+        .flex-buttons {
+            display: inline-flex; /* Keeps buttons in a single line */
+            gap: 10px; /* Space between buttons */
+        }
+
+        button, a {
+            flex-shrink: 0; /* Prevents buttons from shrinking */
+        }
+    </style>
 </head>
 <body class="bg-gray-50 font-poppins overflow-x-hidden">
     <div class="flex min-h-screen">
-        <div id="sidebar-container"></div>
+        <!-- Sidebar -->
+        <div id="sidebar-container">
+        </div>
+
+        <!-- Main Content -->
         <div class="main-content">
             <header class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800">Student List</h1>
@@ -63,24 +96,28 @@
                             <td class="px-6 py-4">3</td>
                             <td class="px-6 py-4">10</td>
                             <td class="px-6 py-4">
-                                <a href="add-edit-student.html" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300">Edit</a>
-                                <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300 ml-2">Delete</button>
-                                <a href="borrow-history.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300 ml-2">View History</a>
-                                <button class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-all duration-300 ml-2">Print Barcode</button>
+                                <div class="flex-buttons">
+                                    <a href="add-edit-student.html" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300">Edit</a>
+                                    <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300">Delete</button>
+                                    <a href="borrow-history.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">View History</a>
+                                    <button class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-all duration-300">Print Barcode</button>
+                                </div>
                             </td>
                         </tr>
                         <tr class="border-b hover:bg-gray-50">
                             <td class="px-6 py-4">S001</td>
-                            <td class="px-6 py-4 text-blue-600 hover:underline cursor-pointer">Jerci</td>
+                            <td class="px-6 py-4 text-blue-600 hover:underline cursor-pointer">Jer</td>
                             <td class="px-6 py-4">BSIT</td>
                             <td class="px-6 py-4">Active</td>
                             <td class="px-6 py-4">3</td>
                             <td class="px-6 py-4">10</td>
                             <td class="px-6 py-4">
-                                <a href="add-edit-student.html" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300">Edit</a>
-                                <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300 ml-2">Delete</button>
-                                <a href="borrow-history.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300 ml-2">View History</a>
-                                <button class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-all duration-300 ml-2">Print Barcode</button>
+                                <div class="flex-buttons">
+                                    <a href="add-edit-student.html" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300">Edit</a>
+                                    <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300">Delete</button>
+                                    <a href="borrow-history.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">View History</a>
+                                    <button class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-all duration-300">Print Barcode</button>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
