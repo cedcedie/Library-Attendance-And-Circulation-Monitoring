@@ -1,0 +1,255 @@
+/* Modern Sidebar Styles */
+.sidebar {
+    width: 280px;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    color: #f8fafc;
+    position: fixed;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem; /* Reduced padding to shrink overall size */
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+    z-index: 50;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    justify-content: space-between; /* Keeps the logout button at the bottom */
+}
+
+/* Adjusted Sidebar Content Layout */
+.sidebar-content {
+    flex-grow: 1;
+    padding-bottom: 1rem; /* Space at the bottom for logout button */
+}
+
+.sidebar-header {
+    padding: 0.25rem 0 1rem; /* Reduced top padding to make the header smaller */
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-header h3 {
+    font-size: 1.1rem; /* Reduced header font size */
+    font-weight: 600;
+    color: #7dd3fc;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sidebar-menu {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem 0;
+}
+
+.sidebar-menu li {
+    list-style: none;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    background-color: transparent;
+}
+
+.menu-item span:first-child {
+    font-size: 1.1rem;
+    width: 24px;
+    display: flex;
+    justify-content: center;
+}
+
+.menu-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.1), transparent);
+    transition: all 0.6s ease;
+}
+
+.menu-item:hover {
+    background-color: rgba(30, 41, 59, 0.5);
+    color: #7dd3fc;
+    transform: translateX(4px);
+}
+
+.menu-item:hover::before {
+    left: 100%;
+}
+
+.menu-item.active {
+    position: relative;
+    background: linear-gradient(90deg, rgba(56, 189, 248, 0.15) 0%, rgba(56, 189, 248, 0.3) 100%);
+    color: #38bdf8;
+    font-weight: 600;
+    box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.3);
+    animation: activePulse 3s infinite;
+    border-left: 4px solid #38bdf8;
+    padding-left: calc(1rem - 4px);
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+
+.menu-item.active::after {
+    content: '';
+    position: absolute;
+    right: 1rem;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #38bdf8;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.3);
+}
+
+.menu-item.active span:first-child {
+    color: #38bdf8;
+}
+
+@keyframes activePulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.3);
+    }
+    70% {
+        box-shadow: 0 0 0 6px rgba(56, 189, 248, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+    }
+}
+
+/* Logout Button Special Styling */
+.sidebar .logout-container {
+    margin-top: auto; /* Ensures logout button is at the bottom */
+    padding-bottom: 1.5rem; /* Reduced bottom padding */
+    display: flex;
+    justify-content: center; /* Centers the logout button horizontally */
+    width: 100%;
+}
+
+.sidebar .logout-container .menu-item {
+    color: #fca5a5;
+    padding: 1rem 1.5rem; /* Keep the increased padding for better spacing */
+    text-align: center; /* Ensures text is centered */
+    width: 100%; /* Make sure the button spans the full width */
+    box-sizing: border-box; /* Ensures padding does not affect width */
+}
+
+.sidebar .logout-container .menu-item:hover {
+    background-color: rgba(30, 41, 59, 0.5);
+    color: #f87171;
+    box-shadow: 0 0 10px rgba(248, 113, 113, 0.5); /* Added glow effect */
+}
+
+.sidebar .logout-container .menu-item.active {
+    background: linear-gradient(90deg, rgba(248, 113, 113, 0.15) 0%, rgba(248, 113, 113, 0.3) 100%);
+    color: #f87171;
+    font-weight: bold; /* Ensure font is bold for clarity */
+}
+
+.sidebar .logout-container .menu-item.active::after {
+    background-color: #f87171;
+    box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.3);
+}
+
+/* Ensuring button text and box sizes */
+.sidebar .logout-container .menu-item {
+    word-wrap: break-word; /* Allows the text to break onto new lines if necessary */
+    white-space: normal; /* Ensures text isn't clipped in a single line */
+    overflow: visible; /* Prevents clipping of text */
+}
+
+/* Responsiveness for smaller screens */
+@media (max-width: 640px) {
+    .sidebar .logout-container .menu-item {
+        font-size: 1rem; /* Make font size a bit smaller for smaller screens */
+        padding: 0.75rem 1.2rem; /* Adjust padding for smaller screens */
+    }
+}
+
+.sidebar.active {
+    transform: translateX(0);
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.2);
+}
+
+.main-content {
+    margin-left: 0 !important;
+}
+
+.mobile-menu-button {
+    display: block;
+    z-index: 60; /* Ensure the button stays on top */
+}
+
+/* Mobile Menu Toggle Button */
+.mobile-menu-button {
+    display: none;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 60;
+    background-color: #1e293b;
+    color: #38bdf8;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mobile-menu-button:hover {
+    background-color: #334155;
+}
+
+/* Backdrop for mobile menu */
+.sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-backdrop.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+@media (max-width: 640px) {
+    .sidebar {
+        width: 240px;
+        padding: 1rem;
+    }
+    
+    .menu-item {
+        padding: 0.65rem 0.85rem;
+        font-size: 0.9rem;
+    }
+    
+    .sidebar-header h3 {
+        font-size: 1rem; /* Slightly smaller header font */
+    }
+}
