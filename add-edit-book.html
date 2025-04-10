@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Add/Edit Book</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="sidebar.css"/>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .scale-100 { transform: scale(1); }
+        .scale-90 { transform: scale(0.9); }
+        .opacity-0 { opacity: 0; }
+        .opacity-100 { opacity: 1; }
+        .form-container {
+            max-height: 600px; 
+            overflow-y: auto; 
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-poppins overflow-hidden">
+
+<div class="flex min-h-screen">
+    <div id="sidebar-container">
+    </div>
+
+    <div class="main-content w-full p-8">
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-semibold text-gray-800">Add / Edit Book</h1>
+        </header>
+
+        <div class="bg-white shadow-lg rounded-lg p-8 form-container">
+            <form id="bookForm" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-1">Book Title</label>
+                        <input required name="title" type="text" placeholder="Enter book title"
+                                     class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-1">Author</label>
+                        <input required name="author" type="text" placeholder="Enter author's name"
+                                     class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-grow">
+                            <label class="block text-gray-700 font-medium mb-1">ISBN</label>
+                            <input required name="isbn" type="text" placeholder="Enter ISBN"
+                                     class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <p class="text-sm text-gray-500 mt-2">If the ISBN barcode is not readable, try manually entering the ISBN number or reprint the barcode.</p>
+                        </div>
+                        <button type="button" onclick="alert('Scan feature is not implemented yet')" class="bg-green-500 text-white p-3 rounded-lg shadow-sm hover:bg-green-600">
+                            Scan ISBN
+                        </button>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-1">Genre</label>
+                        <input required name="genre" type="text" placeholder="Enter genre"
+                                     class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-1">Stock Quantity</label>
+                        <input required name="stockquantity" type="number" min="1" placeholder="Enter stock quantity"
+                                     class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-1">Description</label>
+                        <textarea required name="description" rows="4" placeholder="Enter book description"
+                                     class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between space-x-4 pt-6">
+                    <div class="flex-grow border-t border-gray-300 mx-4"></div>
+                    <div class="flex items-center space-x-4">
+                        <button type="button" onclick="handleCancel()" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-400 transition-all duration-300">
+                            Cancel
+                        </button>
+                        <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <div id="cancelModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+                <div id="cancelModalContent" class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 text-center scale-90 opacity-0 transition-all duration-300 ease-out">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">⚠️ Unsaved Changes</h2>
+                    <p class="text-gray-600 mb-6">You’ve made changes. Are you sure you want to leave?</p>
+                    <div class="flex justify-center gap-4">
+                        <button onclick="closeCancelModal()" class="px-5 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition font-medium">
+                            Stay
+                        </button>
+                        <button onclick="window.location.href='books.html'" class="px-5 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition font-medium">
+                            Exit Anyway
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function handleCancel() {
+        const form = document.getElementById('bookForm');
+        const isDirty = Array.from(form.elements).some(input =>
+            input.tagName !== "BUTTON" && input.value.trim() !== ""
+        );
+        if (isDirty) {
+            const modal = document.getElementById('cancelModal');
+            const content = document.getElementById('cancelModalContent');
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                content.classList.remove('scale-90', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            });
+        } else {
+            window.location.href = 'books.html';
+        }
+    }
+
+    function closeCancelModal() {
+        const modal = document.getElementById('cancelModal');
+        const content = document.getElementById('cancelModalContent');
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-90', 'opacity-0');
+        setTimeout(() => modal.classList.add('hidden'), 200);
+    }
+
+    document.getElementById('bookForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const isbnInput = document.querySelector('input[name="isbn"]');
+        const isbnValue = isbnInput.value.trim();
+        
+        if (!isbnValue || isbnValue.length < 10) {
+            alert("⚠️ ISBN is invalid or unreadable. Please recheck the number or try manual entry.");
+        } else {
+            alert("✅ Book saved successfully.");
+            window.location.href = 'books.html';
+        }
+    });
+</script>
+
+<script src="sidebar.js"></script>
+</body>
+</html>

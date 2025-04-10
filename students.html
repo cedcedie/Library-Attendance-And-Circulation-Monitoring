@@ -8,7 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="sidebar.css">
     <style>
-
         .sidebar-item {
             padding: 10px;
             color: white;
@@ -20,34 +19,28 @@
             background-color: #4A5568;
         }
 
-        /* Main content layout */
         .main-content {
-
-            width: calc(100% - 250px); /* Makes sure content fits the remaining width */
+            width: calc(100% - 250px);
         }
 
-
         .flex-buttons {
-            display: inline-flex; /* Keeps buttons in a single line */
-            gap: 10px; /* Space between buttons */
+            display: inline-flex;
+            gap: 10px;
         }
 
         button, a {
-            flex-shrink: 0; /* Prevents buttons from shrinking */
+            flex-shrink: 0;
         }
     </style>
 </head>
 <body class="bg-gray-50 font-poppins overflow-x-hidden">
     <div class="flex min-h-screen">
-        <!-- Sidebar -->
         <div id="sidebar-container">
         </div>
-
-        <!-- Main Content -->
         <div class="main-content">
             <header class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800">Student List</h1>
-                <a href="add-edit-student.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">Add New Student</a>
+              
             </header>
             <div class="flex justify-between mb-4">
                 <div class="flex space-x-4">
@@ -72,6 +65,7 @@
                         <option>Date Added</option>
                         <option>Last Activity</option>
                     </select>
+                    <a href="add-edit-student.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">Add New Student</a>
                 </div>
             </div>
             <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
