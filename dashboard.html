@@ -3,17 +3,482 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Library Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="sidebar.css">
-</head>
-<body>
-    <div class="page-container">
-
-        <div id="sidebar-container"></div>
+    <style>
+        :root {
+            --sti-blue: #0034a5;
+            --sti-yellow: #ffc600;
+            --sti-red: #d61920;
+            --sti-light-blue: #3e68b2;
+        }
         
-        <div class="main-content">
-  
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f8;
+        }
+        
+        .main-header {
+            background: linear-gradient(90deg, var(--sti-blue), var(--sti-light-blue));
+            border-radius: 12px;
+            padding: 1.5rem;
+            color: white;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 52, 165, 0.2);
+        }
+        
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table-row:hover {
+            background-color: #f9fafb;
+        }
+        
+        .card-stats {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-stats.students::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--sti-blue), var(--sti-light-blue));
+            opacity: 0.9;
+            z-index: 0;
+        }
+        
+        .card-stats.books::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--sti-yellow), #ffdc73);
+            opacity: 0.9;
+            z-index: 0;
+        }
+        
+        .card-stats.requests::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--sti-light-blue), #6b9fee);
+            opacity: 0.9;
+            z-index: 0;
+        }
+        
+        .card-stats.overdue::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--sti-red), #ff6b6e);
+            opacity: 0.9;
+            z-index: 0;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stat-label {
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stat-icon {
+            position: absolute;
+            bottom: -15px;
+            right: -15px;
+            font-size: 5rem;
+            opacity: 0.2;
+            z-index: 0;
+        }
+        
+        .button {
+            transition: all 0.2s ease;
+            transform-origin: center;
+        }
+        
+        .button:hover {
+            transform: scale(1.05);
+        }
+        
+        .button-go {
+            background: var(--sti-blue);
+            border: none;
+            color: white;
+            font-weight: 500;
+        }
+        
+        .chart-container {
+            position: relative;
+        }
+        
+        .table-header {
+            background: var(--sti-blue);
+            color: white;
+        }
+        
+        .current-students-card {
+            background: linear-gradient(135deg, var(--sti-blue), var(--sti-light-blue));
+            color: white;
+        }
+        
+        /* Fix for chart responsiveness */
+        .chart-wrapper {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-poppins overflow-x-hidden">
+    <div class="flex min-h-screen">
+        <div id="sidebar-container"></div>
+        <div class="main-content flex-1 p-6 space-y-6">
+            <!-- Modern Header -->
+            <header class="main-header flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold">STI Library Dashboard</h1>
+                    <p class="text-blue-100 mt-1">Welcome back, Administrator</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-blue-100">Today's Date</p>
+                    <p class="text-xl font-semibold" id="current-date">April 25, 2025</p>
+                </div>
+            </header>
+
+            <!-- Top Stats Cards with Icons -->
+            <div class="grid grid-cols-4 gap-6 mb-6">
+                <div class="card card-stats students p-6 rounded-lg shadow-lg text-white relative">
+                    <div class="stat-icon">👥</div>
+                    <h2 class="stat-label text-lg">Total Students</h2>
+                    <p class="stat-value">320</p>
+                </div>
+                <div class="card card-stats books p-6 rounded-lg shadow-lg text-white relative">
+                    <div class="stat-icon">📚</div>
+                    <h2 class="stat-label text-lg">Total Books</h2>
+                    <p class="stat-value">1200</p>
+                </div>
+                <div class="card card-stats requests p-6 rounded-lg shadow-lg text-white relative">
+                    <div class="stat-icon">🔔</div>
+                    <h2 class="stat-label text-lg">Pending Requests</h2>
+                    <p class="stat-value">8</p>
+                </div>
+                <div class="card card-stats overdue p-6 rounded-lg shadow-lg text-white relative">
+                    <div class="stat-icon">⏰</div>
+                    <h2 class="stat-label text-lg">Overdue Books</h2>
+                    <p class="stat-value">5</p>
+                </div>
+            </div>
+
+            <!-- Flexbox Layout for Charts and Right Side -->
+            <div class="flex space-x-6">
+                <!-- Left side: Charts stacked vertically -->
+                <div class="flex-1">
+                    <!-- Student Activity Chart -->
+                    <div class="card p-6 rounded-lg shadow-lg mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Student Activity</h2>
+                        <div class="chart-wrapper">
+                            <canvas id="student-activity-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Monthly Borrow Stats Chart -->
+                    <div class="card p-6 rounded-lg shadow-lg mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Monthly Borrow Statistics</h2>
+                        <div class="chart-wrapper">
+                            <canvas id="borrow-stats-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right side: Current Students and Approve/Deny -->
+                <div class="flex-1 space-y-6">
+                    <!-- Current Students -->
+                    <div class="card current-students-card p-6 rounded-lg shadow-lg text-center">
+                        <h2 class="text-xl font-medium mb-2">Current Students Inside</h2>
+                        <p class="text-4xl font-bold">45</p>
+                        <p class="text-sm mt-2 text-blue-100">Last updated: 10 minutes ago</p>
+                        
+                        <!-- Add Button to View Attendance Logs -->
+                        <a href="attendance.html">
+                            <button class="mt-4 px-6 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600">
+                                View Attendance Logs
+                            </button>
+                        </a>
+                    </div>
+       
+                
+
+                    <!-- Pending Borrow & Return Requests Table -->
+                    <div class="card p-6 rounded-lg shadow-lg">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Pending Requests</h2>
+                        <div class="overflow-hidden rounded-lg border border-gray-200">
+                            <table class="min-w-full text-sm divide-y divide-gray-200">
+                                <thead class="table-header">
+                                    <tr>
+                                        <th class="px-6 py-4 font-medium text-left">Student Name</th>
+                                        <th class="px-6 py-4 font-medium text-left">Book Title</th>
+                                        <th class="px-6 py-4 font-medium text-left">Request Type</th>
+                                        <th class="px-6 py-4 font-medium text-left">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 bg-white">
+                                    <tr class="table-row hover:bg-gray-50 transition duration-150">
+                                        <td class="px-6 py-4">Adrian Robles</td>
+                                        <td class="px-6 py-4">Data Structures</td>
+                                        <td class="px-6 py-4"><span class="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">Borrow</span></td>
+                                        <td class="px-6 py-4">
+                                            <button class="button button-go px-6 py-2 rounded-lg text-sm">Go</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="table-row hover:bg-gray-50 transition duration-150">
+                                        <td class="px-6 py-4">Jerick Martin Francisco</td>
+                                        <td class="px-6 py-4">Web Development</td>
+                                        <td class="px-6 py-4"><span class="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Return</span></td>
+                                        <td class="px-6 py-4">
+                                            <button class="button button-go px-6 py-2 rounded-lg text-sm">Go</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="table-row hover:bg-gray-50 transition duration-150">
+                                        <td class="px-6 py-4">Adrian Miravil</td>
+                                        <td class="px-6 py-4">Database Systems</td>
+                                        <td class="px-6 py-4"><span class="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">Borrow</span></td>
+                                        <td class="px-6 py-4">
+                                            <button class="button button-go px-6 py-2 rounded-lg text-sm">Go</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
     <script src="sidebar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Display current date
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', dateOptions);
+        
+        // STI College theme colors
+        const stiBlue = '#0034a5';
+        const stiLightBlue = '#3e68b2';
+        const stiYellow = '#ffc600';
+        const stiRed = '#d61920';
+        
+        // Function to destroy and reinitialize charts on window resize
+        function setupResponsiveCharts() {
+            let studentChart, borrowChart;
+            let resizeTimer;
+            
+            // Initialize Student Activity Chart (line chart)
+            function initStudentChart() {
+                if (studentChart) {
+                    studentChart.destroy();
+                }
+                
+                const activityCtx = document.getElementById('student-activity-chart').getContext('2d');
+                studentChart = new Chart(activityCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM'],
+                        datasets: [{
+                            label: 'Students Visiting',
+                            data: [8, 15, 30, 45, 25, 35, 50, 60, 40, 30, 20, 10],
+                            borderColor: stiBlue,
+                            backgroundColor: 'rgba(0, 52, 165, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: stiYellow,
+                            pointBorderColor: stiBlue,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 52, 165, 0.9)',
+                                padding: 12,
+                                titleFont: {
+                                    size: 14,
+                                    family: 'Poppins'
+                                },
+                                bodyFont: {
+                                    size: 14,
+                                    family: 'Poppins'
+                                },
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.parsed.y + ' students';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    font: {
+                                        family: 'Poppins'
+                                    }
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(156, 163, 175, 0.1)'
+                                },
+                                ticks: {
+                                    font: {
+                                        family: 'Poppins'
+                                    },
+                                    stepSize: 10
+                                }
+                            }
+                        },
+                        animation: {
+                            duration: 1000,
+                            easing: 'easeOutQuart'
+                        }
+                    }
+                });
+            }
+            
+            // Initialize Monthly Borrow Stats Chart with STI colors
+            function initBorrowChart() {
+                if (borrowChart) {
+                    borrowChart.destroy();
+                }
+                
+                const borrowCtx = document.getElementById('borrow-stats-chart').getContext('2d');
+                borrowChart = new Chart(borrowCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        datasets: [{
+                            label: 'Books Borrowed',
+                            data: [50, 70, 60, 80, 90, 100, 120, 140, 130, 110, 90, 75],
+                            backgroundColor: [
+                                stiBlue, stiLightBlue, stiBlue, stiLightBlue,
+                                stiBlue, stiLightBlue, stiBlue, stiLightBlue,
+                                stiBlue, stiLightBlue, stiBlue, stiLightBlue
+                            ],
+                            borderColor: 'transparent',
+                            borderRadius: 8,
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 52, 165, 0.9)',
+                                padding: 12,
+                                titleFont: {
+                                    size: 14,
+                                    family: 'Poppins'
+                                },
+                                bodyFont: {
+                                    size: 14,
+                                    family: 'Poppins'
+                                },
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.parsed.y + ' books borrowed';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    font: {
+                                        family: 'Poppins'
+                                    }
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(156, 163, 175, 0.1)'
+                                },
+                                ticks: {
+                                    font: {
+                                        family: 'Poppins'
+                                    },
+                                    stepSize: 50
+                                }
+                            }
+                        },
+                        animation: {
+                            duration: 1000,
+                            easing: 'easeOutQuart'
+                        }
+                    }
+                });
+            }
+            
+            // Initialize charts on page load
+            initStudentChart();
+            initBorrowChart();
+            
+            // Re-initialize charts on window resize with debounce
+            window.addEventListener('resize', function() {
+        myChart.resize();
+    });}
+        // Call the setup function when DOM is loaded
+        document.addEventListener('DOMContentLoaded', setupResponsiveCharts);
+    </script>
+</body>
 </html>
