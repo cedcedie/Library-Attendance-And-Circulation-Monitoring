@@ -151,7 +151,6 @@
             color: white;
         }
         
-        /* Fix for chart responsiveness */
         .chart-wrapper {
             position: relative;
             height: 250px;
@@ -167,7 +166,6 @@
     <div class="flex min-h-screen">
         <div id="sidebar-container"></div>
         <div class="main-content flex-1 p-6 space-y-6">
-            <!-- Modern Header -->
             <header class="main-header flex justify-between items-center">
                 <div>
                     <h1 class="text-3xl font-bold">STI Library Dashboard</h1>
@@ -179,7 +177,6 @@
                 </div>
             </header>
 
-            <!-- Top Stats Cards with Icons -->
             <div class="grid grid-cols-4 gap-6 mb-6">
                 <div class="card card-stats students p-6 rounded-lg shadow-lg text-white relative">
                     <div class="stat-icon">👥</div>
@@ -203,11 +200,11 @@
                 </div>
             </div>
 
-            <!-- Flexbox Layout for Charts and Right Side -->
+     
             <div class="flex space-x-6">
-                <!-- Left side: Charts stacked vertically -->
+        
                 <div class="flex-1">
-                    <!-- Student Activity Chart -->
+              
                     <div class="card p-6 rounded-lg shadow-lg mb-6">
                         <h2 class="text-xl font-semibold text-gray-800 mb-4">Student Activity</h2>
                         <div class="chart-wrapper">
@@ -215,7 +212,7 @@
                         </div>
                     </div>
                     
-                    <!-- Monthly Borrow Stats Chart -->
+             
                     <div class="card p-6 rounded-lg shadow-lg mb-6">
                         <h2 class="text-xl font-semibold text-gray-800 mb-4">Monthly Borrow Statistics</h2>
                         <div class="chart-wrapper">
@@ -224,15 +221,14 @@
                     </div>
                 </div>
 
-                <!-- Right side: Current Students and Approve/Deny -->
                 <div class="flex-1 space-y-6">
-                    <!-- Current Students -->
+         
                     <div class="card current-students-card p-6 rounded-lg shadow-lg text-center">
                         <h2 class="text-xl font-medium mb-2">Current Students Inside</h2>
                         <p class="text-4xl font-bold">45</p>
                         <p class="text-sm mt-2 text-blue-100">Last updated: 10 minutes ago</p>
                         
-                        <!-- Add Button to View Attendance Logs -->
+                      
                         <a href="attendance.html">
                             <button class="mt-4 px-6 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600">
                                 View Attendance Logs
@@ -240,9 +236,7 @@
                         </a>
                     </div>
        
-                
 
-                    <!-- Pending Borrow & Return Requests Table -->
                     <div class="card p-6 rounded-lg shadow-lg">
                         <h2 class="text-xl font-semibold text-gray-800 mb-4">Pending Requests</h2>
                         <div class="overflow-hidden rounded-lg border border-gray-200">
@@ -261,7 +255,7 @@
                                         <td class="px-6 py-4">Data Structures</td>
                                         <td class="px-6 py-4"><span class="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">Borrow</span></td>
                                         <td class="px-6 py-4">
-                                            <button class="button button-go px-6 py-2 rounded-lg text-sm">Go</button>
+                                            <a href="borrow-return.html" class="button button-go px-6 py-2 rounded-lg text-sm">Go</a>
                                         </td>
                                     </tr>
                                     <tr class="table-row hover:bg-gray-50 transition duration-150">
@@ -269,7 +263,7 @@
                                         <td class="px-6 py-4">Web Development</td>
                                         <td class="px-6 py-4"><span class="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Return</span></td>
                                         <td class="px-6 py-4">
-                                            <button class="button button-go px-6 py-2 rounded-lg text-sm">Go</button>
+                                            <a href="borrow-return.html" class="button button-go px-6 py-2 rounded-lg text-sm">Go</a>
                                         </td>
                                     </tr>
                                     <tr class="table-row hover:bg-gray-50 transition duration-150">
@@ -277,7 +271,7 @@
                                         <td class="px-6 py-4">Database Systems</td>
                                         <td class="px-6 py-4"><span class="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">Borrow</span></td>
                                         <td class="px-6 py-4">
-                                            <button class="button button-go px-6 py-2 rounded-lg text-sm">Go</button>
+                                            <a href="borrow-return.html" class="button button-go px-6 py-2 rounded-lg text-sm">Go</a>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -292,22 +286,22 @@
     <script src="sidebar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Display current date
+     
         const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', dateOptions);
         
-        // STI College theme colors
+     
         const stiBlue = '#0034a5';
         const stiLightBlue = '#3e68b2';
         const stiYellow = '#ffc600';
         const stiRed = '#d61920';
         
-        // Function to destroy and reinitialize charts on window resize
+       
         function setupResponsiveCharts() {
             let studentChart, borrowChart;
             let resizeTimer;
             
-            // Initialize Student Activity Chart (line chart)
+           
             function initStudentChart() {
                 if (studentChart) {
                     studentChart.destroy();
@@ -388,7 +382,7 @@
                 });
             }
             
-            // Initialize Monthly Borrow Stats Chart with STI colors
+            
             function initBorrowChart() {
                 if (borrowChart) {
                     borrowChart.destroy();
@@ -469,15 +463,15 @@
                 });
             }
             
-            // Initialize charts on page load
+  
             initStudentChart();
             initBorrowChart();
             
-            // Re-initialize charts on window resize with debounce
+           
             window.addEventListener('resize', function() {
         myChart.resize();
     });}
-        // Call the setup function when DOM is loaded
+       
         document.addEventListener('DOMContentLoaded', setupResponsiveCharts);
     </script>
 </body>
