@@ -32,25 +32,24 @@
     </header>
 
     <div class="bg-white shadow-lg rounded-lg p-8 form-container">
-      <form id="studentForm" class="space-y-6">
+      <form id="student-form" action="insert.php" method="POST">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label class="block text-gray-700 font-medium mb-1">Full Name</label>
-            <input required name="fullname" type="text" placeholder="Enter full name"
-                   class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="student-name" name="full_name" required placeholder="Full Name"
+              class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
 
           <div>
             <label class="block text-gray-700 font-medium mb-1">Student ID</label>
-            <input required name="studentid" type="text" placeholder="Auto-generated"
-                   class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                   id="studentid" readonly>
+            <input type="text" id="student-id" name="student_id" required placeholder="Student ID"
+              class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" readonly>
           </div>
 
           <div>
             <label class="block text-gray-700 font-medium mb-1">Program</label>
-            <select required name="program"
-                    class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <select id="student-program" name="program" required 
+              class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="">Select Program</option>
               <option>BSIT</option>
               <option>BSCS</option>
@@ -61,25 +60,25 @@
           <div>
             <label class="block text-gray-700 font-medium mb-1">Contact Number</label>
             <input required name="contactnumber" type="text" placeholder="Enter contact number"
-                   class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
 
           <div>
             <label class="block text-gray-700 font-medium mb-1">Email</label>
             <input required name="email" type="email" placeholder="Enter email address"
-                   class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
 
           <div>
             <label class="block text-gray-700 font-medium mb-1">Username</label>
             <input required name="username" type="text" placeholder="Enter username"
-                   class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
 
           <div>
             <label class="block text-gray-700 font-medium mb-1">Password</label>
             <input required name="password" type="password" placeholder="Enter password"
-                   class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
         </div>
 
@@ -97,36 +96,7 @@
             <button type="button" onclick="handleCancel()" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-400 transition-all duration-300">
               Cancel
             </button>
-            <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">
-              Save Changes
-            </button>
-          </div>
-        </div>
-
-
-        <div id="qrModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
-          <div id="qrModalContent" class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 text-center scale-90 opacity-0 transition-all duration-300 ease-out">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">🎉 QR Code Preview</h2>
-            <div id="qrOutput" class="mb-4 flex justify-center"></div>
-            <p class="text-sm text-gray-500 mb-4">QR based on Student ID</p>
-            <button onclick="closeQRModal()" class="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700 transition font-medium">
-              Close
-            </button>
-          </div>
-        </div>
-
-        <div id="cancelModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
-          <div id="cancelModalContent" class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 text-center scale-90 opacity-0 transition-all duration-300 ease-out">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">⚠️ Unsaved Changes</h2>
-            <p class="text-gray-600 mb-6">You’ve made changes or generated a QR code. Are you sure you want to leave?</p>
-            <div class="flex justify-center gap-4">
-              <button onclick="closeCancelModal()" class="px-5 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition font-medium">
-                Stay
-              </button>
-              <button onclick="window.location.href='students.html'" class="px-5 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition font-medium">
-                Exit Anyway
-              </button>
-            </div>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">Save Changes</button>
           </div>
         </div>
       </form>
@@ -134,28 +104,25 @@
   </div>
 </div>
 
+<div id="qrModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+  <div id="qrModalContent" class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 text-center scale-90 opacity-0 transition-all duration-300 ease-out">
+    <h2 class="text-2xl font-semibold text-gray-800 mb-4">🎉 QR Code Preview</h2>
+    <div id="qrOutput" class="mb-4 flex justify-center"></div>
+    <p class="text-sm text-gray-500 mb-4">QR based on Student ID</p>
+    <button onclick="closeQRModal()" class="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700 transition font-medium">
+      Close
+    </button>
+  </div>
+</div>
+
 <script>
   let barcodeGenerated = false;
-
-  const studentIdField = document.getElementById('studentid');
+  const studentIdField = document.getElementById('student-id');
   const generatedID = 'STU' + Math.floor(100000000 + Math.random() * 900000000);
   studentIdField.value = generatedID;
 
-  document.getElementById('studentForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    showConfirmationModal();
-  });
-
-  function showConfirmationModal() {
-    const confirmation = confirm("Are you sure you want to save changes?");
-    if (confirmation) {
-      alert("✅ Student saved successfully.");
-      setTimeout(() => window.location.href = 'students.html', 2000);
-    }
-  }
-
   function openQRModal() {
-    const studentId = document.getElementById('studentid').value;
+    const studentId = document.getElementById('student-id').value;
     const modal = document.getElementById('qrModal');
     const content = document.getElementById('qrModalContent');
     const qrOutput = document.getElementById('qrOutput');
@@ -186,29 +153,7 @@
   }
 
   function handleCancel() {
-    const form = document.getElementById('studentForm');
-    const isDirty = Array.from(form.elements).some(input =>
-      input.tagName !== "BUTTON" && input.value.trim() !== ""
-    );
-    if (isDirty || barcodeGenerated) {
-      const modal = document.getElementById('cancelModal');
-      const content = document.getElementById('cancelModalContent');
-      modal.classList.remove('hidden');
-      requestAnimationFrame(() => {
-        content.classList.remove('scale-90', 'opacity-0');
-        content.classList.add('scale-100', 'opacity-100');
-      });
-    } else {
-      window.location.href = 'students.html';
-    }
-  }
-
-  function closeCancelModal() {
-    const modal = document.getElementById('cancelModal');
-    const content = document.getElementById('cancelModalContent');
-    content.classList.remove('scale-100', 'opacity-100');
-    content.classList.add('scale-90', 'opacity-0');
-    setTimeout(() => modal.classList.add('hidden'), 200);
+    window.location.href = 'students.html';
   }
 </script>
 

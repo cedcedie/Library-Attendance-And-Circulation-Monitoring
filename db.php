@@ -2,7 +2,7 @@
 
 $host = "localhost"; 
 $port = "5432"; 
-$dbname = "libraryDB"; 
+$dbname = "library_system"; 
 $user = "postgres"; 
 $password = "librarySystem"; 
 
