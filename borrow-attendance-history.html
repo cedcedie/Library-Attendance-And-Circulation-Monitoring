@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrowing & Attendance History</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="sidebar.css">
+</head>
+<body class="bg-gray-50 font-poppins overflow-x-hidden">
+    <div class="flex min-h-screen">
+        <div id="sidebar-container"></div>
+        <div class="main-content flex-1 p-6">
+            <header class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800">Student Records</h1>
+            </header>
+
+            <div class="flex justify-between mb-4">
+                <div class="flex space-x-4">
+                    <input type="text" placeholder="Search by book title" class="p-2 w-64 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">Search</button>
+                </div>
+                <div class="flex space-x-4">
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">Print Records</button>
+                    <a href="students.html" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-all duration-300">Return to Student List</a>
+                </div>
+            </div>
+
+            <div class="flex flex-row gap-6 flex-wrap md:flex-nowrap">
+                <!-- Borrowing History Table -->
+                <div class="flex-1 min-w-[300px] bg-white shadow-lg rounded-lg overflow-x-auto">
+                    <h2 class="text-xl font-semibold text-gray-700 px-6 py-4 border-b">Borrowing History</h2>
+                    <table class="min-w-full text-sm text-left text-gray-500">
+                        <thead class="bg-gray-800 text-white">
+                            <tr>
+                                <th class="px-6 py-4 font-medium">Book Title</th>
+                                <th class="px-6 py-4 font-medium">Borrow Date</th>
+                                <th class="px-6 py-4 font-medium">Due Date</th>
+                                <th class="px-6 py-4 font-medium">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Sample Rows -->
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="px-6 py-4">Introduction to Programming</td>
+                                <td class="px-6 py-4">2025-03-15</td>
+                                <td class="px-6 py-4">2025-03-29</td>
+                                <td class="px-6 py-4 text-green-500">Returned</td>
+                            </tr>
+                            <!-- Add more rows here -->
+                        </tbody>
+                    </table>
+                    <!-- Pagination for Borrowing History -->
+                    <div class="flex justify-between items-center px-6 py-4">
+                        <div class="text-sm text-gray-600">Showing 1-10 of 50 records</div>
+                        <div class="flex space-x-2">
+                            <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Previous</button>
+                            <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Next</button>
+                        </div>
+                    </div>
+                </div>
+            
+                <!-- Attendance Logs Table -->
+                <div class="flex-1 min-w-[300px] bg-white shadow-lg rounded-lg overflow-x-auto">
+                    <h2 class="text-xl font-semibold text-gray-700 px-6 py-4 border-b">Attendance Logs</h2>
+                    <table class="min-w-full text-sm text-left text-gray-500">
+                        <thead class="bg-gray-800 text-white">
+                            <tr>
+                                <th class="px-6 py-4 font-medium">Date</th>
+                                <th class="px-6 py-4 font-medium">Time In</th>
+                                <th class="px-6 py-4 font-medium">Time Out</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Sample Rows -->
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="px-6 py-4">2025-04-01</td>
+                                <td class="px-6 py-4">08:00 AM</td>
+                                <td class="px-6 py-4">04:30 PM</td>
+                            </tr>
+                            <!-- Add more rows here -->
+                        </tbody>
+                    </table>
+                    <!-- Pagination for Attendance Logs -->
+                    <div class="flex justify-between items-center px-6 py-4">
+                        <div class="text-sm text-gray-600">Showing 1-10 of 40 logs</div>
+                        <div class="flex space-x-2">
+                            <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Previous</button>
+                            <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          
+    <script src="sidebar.js"></script>
+</body>
+</html>
