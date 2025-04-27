@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Add/Edit Student</title>
+  <title>Add / Edit Student</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="sidebar.css"/>
@@ -59,25 +59,25 @@
 
           <div>
             <label class="block text-gray-700 font-medium mb-1">Contact Number</label>
-            <input required name="contactnumber" type="text" placeholder="Enter contact number"
+            <input required id="student-contact_number" name="contact_number" type="text" placeholder="Enter contact number"
               class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
 
           <div>
             <label class="block text-gray-700 font-medium mb-1">Email</label>
-            <input required name="email" type="email" placeholder="Enter email address"
+            <input required id="student-email" name="email" type="email" placeholder="Enter email address"
               class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
 
           <div>
             <label class="block text-gray-700 font-medium mb-1">Username</label>
-            <input required name="username" type="text" placeholder="Enter username"
+            <input required id="student-username" name="username" type="text" placeholder="Enter username"
               class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
 
           <div>
             <label class="block text-gray-700 font-medium mb-1">Password</label>
-            <input required name="password" type="password" placeholder="Enter password"
+            <input required id="student-password" name="password" type="password" placeholder="Enter password"
               class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
         </div>
@@ -117,20 +117,25 @@
     </button>
   </div>
 </div>
+
 <script src="sidebar.js"></script>
 <script>
   let barcodeGenerated = false;
   const studentIdField = document.getElementById('student-id');
-  const generatedID = 'STU' + Math.floor(100000000 + Math.random() * 900000000);
-  studentIdField.value = generatedID;
+  const qrCodeDataField = document.getElementById('qrCodeData');
+  const form = document.getElementById('student-form');
+
+  function generateRandomStudentID() {
+    return 'STU' + Math.floor(100000000 + Math.random() * 900000000);
+  }
 
   function openQRModal() {
-    const studentId = document.getElementById('student-id').value;
+    const studentId = studentIdField.value;
     const modal = document.getElementById('qrModal');
     const content = document.getElementById('qrModalContent');
     const qrOutput = document.getElementById('qrOutput');
 
-    qrOutput.innerHTML = ''; 
+    qrOutput.innerHTML = '';
     new QRCode(qrOutput, {
       text: studentId,
       width: 180,
@@ -155,19 +160,54 @@
     setTimeout(() => modal.classList.add('hidden'), 200);
   }
 
-  function storeQRCodeData() {
-    if (barcodeGenerated) {
-      document.getElementById('qrCodeData').value = document.getElementById('student-id').value;
-    } else {
-      alert("Please generate a QR Code before saving.");
-      return false;
-    }
-  }
-
   function handleCancel() {
     if (!barcodeGenerated) {
       alert("No changes have been made.");
     }
+    window.location.href = "students_list.php"; // ← Replace with your actual list page
+  }
+
+  function getStudentIdFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('student_id');
+  }
+
+  function fetchStudentData(studentId) {
+    fetch(`fetch_student_edit.php?student_id=${studentId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data) {
+          document.getElementById('student-name').value = data.full_name;
+          document.getElementById('student-id').value = data.student_id;
+          document.getElementById('student-program').value = data.program;
+          document.getElementById('student-contact_number').value = data.contact_number;
+          document.getElementById('student-email').value = data.email;
+          document.getElementById('student-username').value = data.username;
+          document.getElementById('student-password').value = ""; 
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching student data:', error);
+      });
+  }
+
+  // Main: when page loads
+  window.onload = function() {
+    const studentId = getStudentIdFromURL();
+    if (studentId) {
+      fetchStudentData(studentId);
+    } else {
+      // Only generate a random ID if adding new student
+      studentIdField.value = generateRandomStudentID();
+    }
+  }
+  form.onsubmit = function(e) {
+    if (!barcodeGenerated) {
+      alert("Please generate a QR Code before saving.");
+      e.preventDefault(); // prevent form from submitting
+      return false;
+    }
+    qrCodeDataField.value = studentIdField.value; // Save QR Code Data before submitting
   }
 </script>
 </body>

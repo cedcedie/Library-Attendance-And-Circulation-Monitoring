@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="sidebar.css">
-    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <style>
         .sidebar-item {
             padding: 10px;
@@ -32,65 +31,11 @@
         button, a {
             flex-shrink: 0;
         }
-
-        /* Modal Styles */
-        .modal {
-            display: none; 
-            position: fixed;
-            z-index: 50;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            opacity: 0; /* Start invisible */
-            transition: opacity 0.3s ease-in-out; /* Smooth transition */
-        }
-
-        .modal.show {
-            display: flex;
-            opacity: 1; /* Fade in when class 'show' is added */
-        }
-
-        .modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 400px;
-            text-align: center;
-        }
-
-        .modal-header {
-            font-size: 1.25rem;
-            font-weight: 500;
-        }
-
-        .modal-body {
-            margin: 10px 0;
-        }
-
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-
-        .qr-placeholder {
-            width: 150px;
-            height: 150px;
-            background: #ccc;
-            display: block;
-            margin: 20px auto;
-            border-radius: 8px;
-        }
     </style>
 </head>
 <body class="bg-gray-50 font-poppins overflow-x-hidden">
     <div class="flex min-h-screen">
-        <div id="sidebar-container">
-        </div>
+        <div id="sidebar-container"></div>
         <div class="main-content">
             <header class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800">Student List</h1>
@@ -143,116 +88,137 @@
         </div>
     </div>
 
-    <!-- Modal for Print QR -->
-    <div id="qrModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Print QR Confirmation</h2>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to print the QR code for this student?</p>
-                <!-- Placeholder for dynamically generated QR Code -->
-                <div id="qrCodeContainer" class="qr-placeholder"></div>
-            </div>
-            <div class="modal-footer">
-                <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg" id="cancelBtn">Cancel</button>
-                <button class="bg-yellow-500 text-white px-4 py-2 rounded-lg" id="confirmBtn">Confirm</button>
-            </div>
-        </div>
-    </div>
-
     <script src="sidebar.js"></script>
     <script>
-        // Fetch the student data and populate the table
+
         const studentTableBody = document.getElementById("student-table-body");
     
-        // Fetch student data from the server (fetch_students.php)
         fetch('fetch_students.php')
-    .then(response => response.json())
-    .then(data => {
-        console.log('Fetched student data:', data);  // Log the fetched data
-        data.forEach(student => {
-            const row = document.createElement("tr");
-            row.classList.add("border-b", "hover:bg-gray-50");
+        .then(response => response.json())
+        .then(data => {
+            console.log('Fetched student data:', data);
+            data.forEach(student => {
+                const row = document.createElement("tr");
+                row.classList.add("border-b", "hover:bg-gray-50");
+    
+                row.innerHTML = `
+                    <td class="px-6 py-4">${student.student_id}</td>
+                    <td class="px-6 py-4">${student.full_name}</td>
+                    <td class="px-6 py-4">${student.program}</td>
+                    <td class="px-6 py-4">${student.total_borrowed_books ?? 0}</td>
+                    <td class="px-6 py-4">${student.total_attendance ?? 0}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex-buttons space-x-2">
+                            <a href="borrow-attendance-history.html?student_id=${student.student_id}" 
+                               class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-all duration-300">
+                                View History
+                            </a>
+                            <a href="add-edit-student.html?student_id=${student.student_id}" 
+                               class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300 editBtn" 
+                               data-student-id="${student.student_id}">
+                                Edit
+                            </a>
+                            <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300 deleteBtn" 
+                                    data-student-id="${student.student_id}">
+                                Delete
+                            </button>
+                            <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300 printQRBtn" 
+                                    data-student-id="${student.student_id}">
+                                Print QR
+                            </button>
+                        </div>
+                    </td>
+                `;
+                studentTableBody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching student data:', error);
+        });
+    
+        // Event delegation for dynamic buttons
+        document.getElementById('student-table-body').addEventListener('click', function(e) {
+            const printBtn = e.target.closest('.printQRBtn');
+            const deleteBtn = e.target.closest('.deleteBtn');
+    
+            // Handle Print QR Code
+            if (printBtn) {
+                const studentId = printBtn.getAttribute("data-student-id");
+                const qrImageSrc = `images/qrcodes/${studentId}.png`;
+    
+                // Create a new image element
+                const img = new Image();
+                img.src = qrImageSrc;
+    
+                img.onload = function() {
+                    const printWindow = window.open('', '_blank', 'width=600,height=400');
+    
+                    printWindow.document.write(`
+                        <html>
+                            <head>
+                                <title>Print QR Code</title>
+                                <style>
+                                    body { 
+                                        margin: 0;
+                                        padding: 0;
+                                        display: flex;
+                                        justify-content: center;
+                                        align-items: center;
+                                        height: 100vh;
+                                        background-color: white;
+                                    }
+                                    img {
+                                        max-width: 100%;
+                                        max-height: 100%;
+                                    }
+                                </style>
+                            </head>
+                            <body>
+                                <img src="${qrImageSrc}" alt="QR Code" />
+                            </body>
+                        </html>
+                    `);
+    
+                    printWindow.document.close();
+                    printWindow.print();
+    
+                    printWindow.onafterprint = function() {
+                        printWindow.close();
+                    };
+                };
+    
+                img.onerror = function() {
+                    alert('QR Code image not found!');
+                };
+            }
+    
+            // Handle Delete Student
+            if (deleteBtn) {
+                const studentId = deleteBtn.getAttribute("data-student-id");
+                const confirmation = confirm(`Are you sure you want to delete student with ID ${studentId}?`);
+                
+                if (confirmation) {
+                    fetch('delete_students.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            'student_id': studentId,
+                        })
+                    })
+                    .then(response => response.text())
+                    .then(result => {
+                        alert(result);
+                        if (result.includes("successfully")) {
+                            deleteBtn.closest('tr').remove();
+                        }
+                    })
+                    .catch(error => console.error('Error deleting student:', error));
+                }
+            }
+        });
 
-            row.innerHTML = `
-                <td class="px-6 py-4">${student.student_id}</td>
-                <td class="px-6 py-4">${student.full_name}</td>
-                <td class="px-6 py-4">${student.program}</td>
-        
-                <td class="px-6 py-4">${student.borrowed_books}</td>
-                <td class="px-6 py-4">${student.attendance}</td>
-                <td class="px-6 py-4">
-                    <div class="flex-buttons">
-                        <a href="add-edit-student.html?student_id=${student.student_id}" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300">Edit</a>
-                        <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300" onclick="deleteStudent('${student.student_id}')">Delete</button>
-                    </div>
-                </td>
-            `;
-            studentTableBody.appendChild(row);  // Add the row to the table body
-        });
-    })
-    .catch(error => {
-        console.error('Error fetching student data:', error);  // Log any errors
-    })
-    
-        // Function to handle deleting a student
-        function deleteStudent(studentId) {
-            const formData = new FormData();
-            formData.append('student_id', studentId);
-    
-            fetch('delete.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.text())
-            .then(data => {
-                alert(data);  // Display a success message
-                location.reload();  // Reload the page to reflect changes
-            })
-            .catch(error => {
-                console.error('Error deleting student:', error);
-            });
-        }
-    
-        // Modal interaction for printing QR codes
-        const printQRBtns = document.querySelectorAll(".printQRBtn");
-        const qrModal = document.getElementById("qrModal");
-        const cancelBtn = document.getElementById("cancelBtn");
-        const confirmBtn = document.getElementById("confirmBtn");
-        const qrCodeContainer = document.getElementById("qrCodeContainer");
-    
-        printQRBtns.forEach(btn => {
-            btn.addEventListener("click", () => {
-                const studentId = btn.getAttribute("data-student-id");
-                qrModal.classList.add("show");
-    
-                // Generate the QR code for the student
-                const qrCode = new QRCode(qrCodeContainer, {
-                    text: `Student ID: ${studentId}`,
-                    width: 150,
-                    height: 150,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-            });
-        });
-    
-        // Close the QR modal when cancel button is clicked
-        cancelBtn.addEventListener("click", () => {
-            qrModal.classList.remove("show");
-            qrCodeContainer.innerHTML = '';  // Clear the QR code
-        });
-    
-        // Confirm and print QR code when confirm button is clicked
-        confirmBtn.addEventListener("click", () => {
-            alert("QR Code printed!");  // In reality, you'd trigger the print functionality here
-            qrModal.classList.remove("show");
-            qrCodeContainer.innerHTML = '';  // Clear the QR code
-        });
     </script>
-
-    
 </body>
 </html>
