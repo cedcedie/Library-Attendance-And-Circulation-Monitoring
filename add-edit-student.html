@@ -82,6 +82,9 @@
           </div>
         </div>
 
+        <!-- Hidden input for QR Code Data -->
+        <input type="hidden" id="qrCodeData" name="qr_code" value="">
+
         <div class="flex items-center justify-between space-x-4 pt-6">
           <div class="flex items-center space-x-4">
             <div id="qrPreview" class="w-full p-3 border rounded-lg shadow-sm bg-gray-100 text-gray-600 text-center">
@@ -96,7 +99,7 @@
             <button type="button" onclick="handleCancel()" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-400 transition-all duration-300">
               Cancel
             </button>
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">Save Changes</button>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300" onclick="storeQRCodeData()">Save Changes</button>
           </div>
         </div>
       </form>
@@ -114,7 +117,7 @@
     </button>
   </div>
 </div>
-
+<script src="sidebar.js"></script>
 <script>
   let barcodeGenerated = false;
   const studentIdField = document.getElementById('student-id');
@@ -152,11 +155,20 @@
     setTimeout(() => modal.classList.add('hidden'), 200);
   }
 
+  function storeQRCodeData() {
+    if (barcodeGenerated) {
+      document.getElementById('qrCodeData').value = document.getElementById('student-id').value;
+    } else {
+      alert("Please generate a QR Code before saving.");
+      return false;
+    }
+  }
+
   function handleCancel() {
-    window.location.href = 'students.html';
+    if (!barcodeGenerated) {
+      alert("No changes have been made.");
+    }
   }
 </script>
-
-<script src="sidebar.js"></script>
 </body>
 </html>

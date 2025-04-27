@@ -11,7 +11,6 @@ $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $student_id = $_POST['student_id'];
 
-    // SQL to delete a student
     $sql = "DELETE FROM students WHERE student_id = :student_id";
     
     $stmt = $conn->prepare($sql);

@@ -9,13 +9,11 @@ $conn = new PDO("pgsql:host=$host;dbname=$dbname", $user, $pass);
 $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Get form data
     $student_id = $_POST['student_id'];
     $full_name = $_POST['full_name'];
     $program = $_POST['program'];
     $status = $_POST['status'];
 
-    // SQL to update student info
     $sql = "UPDATE students 
             SET full_name = :full_name, program = :program, status = :status
             WHERE student_id = :student_id";

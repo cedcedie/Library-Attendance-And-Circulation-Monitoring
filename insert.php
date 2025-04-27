@@ -1,8 +1,9 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+require 'vendor/autoload.php';
 
-// Database connection
+use chillerlan\QRCode\QRCode;
+use chillerlan\QRCode\QROptions;
+
 $host = "localhost"; 
 $port = "5432"; 
 $dbname = "library_system"; 
@@ -17,17 +18,31 @@ try {
         $full_name = $_POST['full_name'];
         $student_id = $_POST['student_id'];
         $program = $_POST['program'];
-        $contactnumber = $_POST['contactnumber'];
+        $contact_number = $_POST['contactnumber'];
         $email = $_POST['email'];
         $username = $_POST['username'];
-        $password = password_hash($_POST['password'], PASSWORD_DEFAULT); // encrypt password
-    
-        $sql = "INSERT INTO students (full_name, student_id, program, contactnumber, email, username, password)
-                VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $password = password_hash($_POST['password'], PASSWORD_DEFAULT); 
+
+        $qr_code_path = 'images/qrcodes/' . $student_id . '.png'; 
+
+        $options = new QROptions([
+            'version'    => 5,
+            'eccLevel'   => QRCode::ECC_L,
+            'imageBase64'=> false,
+            'outputType' => QRCode::OUTPUT_IMAGE_PNG,
+            'scale'      => 5,
+            'margin'     => 2
+        ]);
+
+        $data = "Name: $full_name, ID: $student_id, Program: $program, Contact: $contact_number, Email: $email";
+        $qrcode = new QRCode($options);
+        $qrcode->render($student_id, $qr_code_path);  
+
+        $sql = "INSERT INTO students (full_name, student_id, program, contact_number, email, username, password, qr_code)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->execute([$full_name, $student_id, $program, $contactnumber, $email, $username, $password]);
-    
-        // After successful insert, redirect back to students page
+        $stmt->execute([$full_name, $student_id, $program, $contact_number, $email, $username, $password, $qr_code_path]);
+
         header("Location: students.html");
         exit();
     } else {
