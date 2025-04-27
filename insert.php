@@ -23,7 +23,6 @@ try {
         $username = $_POST['username'];
         $password = password_hash($_POST['password'], PASSWORD_DEFAULT); 
 
-        // QR Code Generation
         $qr_code_path = 'images/qrcodes/' . $student_id . '.png'; 
 
         $options = new QROptions([
@@ -39,20 +38,17 @@ try {
         $qrcode = new QRCode($options);
         $qrcode->render($student_id, $qr_code_path);  
 
-        // Check if the student already exists
         $checkQuery = "SELECT * FROM students WHERE student_id = ?";
         $stmt = $conn->prepare($checkQuery);
         $stmt->execute([$student_id]);
 
         if ($stmt->rowCount() > 0) {
-            // If the student exists, update the record
             $updateQuery = "UPDATE students SET full_name = ?, program = ?, contact_number = ?, email = ?, username = ?, password = ?, qr_code = ? WHERE student_id = ?";
             $stmt = $conn->prepare($updateQuery);
             $stmt->execute([$full_name, $program, $contact_number, $email, $username, $password, $qr_code_path, $student_id]);
 
             echo "Student record updated.";
         } else {
-            // If the student doesn't exist, insert a new record
             $insertQuery = "INSERT INTO students (full_name, student_id, program, contact_number, email, username, password, qr_code)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($insertQuery);

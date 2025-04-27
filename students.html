@@ -108,26 +108,25 @@
                     <td class="px-6 py-4">${student.total_borrowed_books ?? 0}</td>
                     <td class="px-6 py-4">${student.total_attendance ?? 0}</td>
                     <td class="px-6 py-4">
-                        <div class="flex-buttons space-x-2">
-                            <a href="borrow-attendance-history.html?student_id=${student.student_id}" 
-                               class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-all duration-300">
-                                View History
-                            </a>
-                            <a href="add-edit-student.html?student_id=${student.student_id}" 
-                               class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300 editBtn" 
-                               data-student-id="${student.student_id}">
-                                Edit
-                            </a>
-                            <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300 deleteBtn" 
-                                    data-student-id="${student.student_id}">
-                                Delete
-                            </button>
-                            <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300 printQRBtn" 
-                                    data-student-id="${student.student_id}">
-                                Print QR
-                            </button>
-                        </div>
-                    </td>
+    <div class="flex-buttons space-x-2">
+        <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300 editBtn" 
+                data-student-id="${student.student_id}">
+            Edit
+        </button>
+        <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300 deleteBtn" 
+                data-student-id="${student.student_id}">
+            Delete
+        </button>
+        <a href="borrow-attendance-history.html?student_id=${student.student_id}" 
+           class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">
+            View History
+        </a>
+        <button class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-all duration-300 printQRBtn" 
+                data-student-id="${student.student_id}">
+            Print QR
+        </button>
+    </div>
+</td>
                 `;
                 studentTableBody.appendChild(row);
             });

@@ -17,7 +17,7 @@
             </header>
             <div class="flex justify-between items-center mb-4">
                 <div class="flex space-x-2">
-                    <input type="text" placeholder="Search by name, ID, or program" class="p-2 w-64 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" placeholder="Search by name, author, or ID" class="p-2 w-64 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" id="search-input">
                     <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">Search</button>
                 </div>
                 <div class="flex space-x-4">
@@ -27,7 +27,6 @@
                         <option>Author</option>
                         <option>Stock Quantity</option>
                     </select>
-                    <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300">Manage Stock</button>
                     <a href="add-edit-book.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">Add New Book</a>
                 </div>
             </div>
@@ -35,52 +34,14 @@
                 <table class="min-w-full text-sm text-left text-gray-500">
                     <thead class="bg-gray-800 text-white">
                         <tr>
+                            <th class="px-6 py-4 font-medium">Book ID</th>
                             <th class="px-6 py-4 font-medium">Book Title</th>
                             <th class="px-6 py-4 font-medium">Author</th>
-                            <th class="px-6 py-4 font-medium">Stock Quantity</th>
                             <th class="px-6 py-4 font-medium">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="px-6 py-4">Introduction to Programming</td>
-                            <td class="px-6 py-4">John Doe</td>
-                            <td class="px-6 py-4">50</td>
-                            <td class="px-6 py-4">
-                                <div class="flex space-x-2">
-                                    <a href="add-edit-book.html" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300">Edit</a>
-                                    <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300">Delete</button>
-                                    <a href="book-view-history.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">View History</a>
-                                    <button class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-all duration-300">Print QR</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="px-6 py-4">Data Structures</td>
-                            <td class="px-6 py-4">Jane Smith</td>
-                            <td class="px-6 py-4">30</td>
-                            <td class="px-6 py-4">
-                                <div class="flex space-x-2">
-                                    <a href="add-edit-book.html" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300">Edit</a>
-                                    <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300">Delete</button>
-                                    <a href="book-view-history.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">View History</a>
-                                    <button class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-all duration-300">Print QR</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="px-6 py-4">Web Development</td>
-                            <td class="px-6 py-4">Alice Johnson</td>
-                            <td class="px-6 py-4">20</td>
-                            <td class="px-6 py-4">
-                                <div class="flex space-x-2">
-                                    <a href="add-edit-book.html" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300">Edit</a>
-                                    <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300">Delete</button>
-                                    <a href="book-view-history.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">View History</a>
-                                    <button class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-all duration-300">Print QR</button>
-                                </div>
-                            </td>
-                        </tr>
+                    <tbody id="book-table-body">
+                        <!-- Books data will be injected here -->
                     </tbody>
                 </table>
             </div>
@@ -94,5 +55,133 @@
         </div>
     </div>
     <script src="sidebar.js"></script>
+    <script>
+        const bookTableBody = document.getElementById("book-table-body");
+
+        fetch('fetch_books.php')
+    .then(response => response.json())
+    .then(data => {
+        console.log('Fetched book data:', data); // Log the data for debugging
+        if (Array.isArray(data)) { // Check if it's an array
+            data.forEach(book => {
+                const row = document.createElement("tr");
+                row.classList.add("border-b", "hover:bg-gray-50");
+
+                row.innerHTML = `
+                    <td class="px-6 py-4">${book.book_id}</td>
+                    <td class="px-6 py-4">${book.title}</td>
+                    <td class="px-6 py-4">${book.author}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex space-x-2">
+                            <a href="add-edit-book.html?book_id=${book.book_id}" 
+                               class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300">
+                                Edit
+                            </a>
+                            <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300 deleteBtn" 
+                                    data-book-id="${book.book_id}">
+                                Delete
+                            </button>
+                            <a href="book-view-history.html?book_id=${book.book_id}" 
+                               class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">
+                                View History
+                            </a>
+                            <button class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-all duration-300 printQRBtn" 
+                                    data-book-id="${book.book_id}">
+                                Print QR
+                            </button>
+                        </div>
+                    </td>
+                `;
+                bookTableBody.appendChild(row);
+            });
+        } else {
+            console.error('Fetched data is not an array:', data); // Log if the data isn't an array
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching book data:', error);
+    });
+
+        // Event delegation for dynamic buttons
+        document.getElementById('book-table-body').addEventListener('click', function(e) {
+            const printBtn = e.target.closest('.printQRBtn');
+            const deleteBtn = e.target.closest('.deleteBtn');
+
+            // Handle Print QR Code
+            if (printBtn) {
+                const bookId = printBtn.getAttribute("data-book-id");
+                const qrImageSrc = `images/qrcodes/${bookId}.png`;
+
+                const img = new Image();
+                img.src = qrImageSrc;
+
+                img.onload = function() {
+                    const printWindow = window.open('', '_blank', 'width=600,height=400');
+
+                    printWindow.document.write(`
+                        <html>
+                            <head>
+                                <title>Print QR Code</title>
+                                <style>
+                                    body { 
+                                        margin: 0;
+                                        padding: 0;
+                                        display: flex;
+                                        justify-content: center;
+                                        align-items: center;
+                                        height: 100vh;
+                                        background-color: white;
+                                    }
+                                    img {
+                                        max-width: 100%;
+                                        max-height: 100%;
+                                    }
+                                </style>
+                            </head>
+                            <body>
+                                <img src="${qrImageSrc}" alt="QR Code" />
+                            </body>
+                        </html>
+                    `);
+
+                    printWindow.document.close();
+                    printWindow.print();
+
+                    printWindow.onafterprint = function() {
+                        printWindow.close();
+                    };
+                };
+
+                img.onerror = function() {
+                    alert('QR Code image not found!');
+                };
+            }
+
+            if (deleteBtn) {
+                const bookId = deleteBtn.getAttribute("data-book-id");
+                const confirmation = confirm(`Are you sure you want to delete book with ID ${bookId}?`);
+
+                if (confirmation) {
+                    fetch('delete_books.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            'book_id': bookId,
+                        })
+                    })
+                    .then(response => response.text())
+                    .then(result => {
+                        alert(result);
+                        if (result.includes("successfully")) {
+                            deleteBtn.closest('tr').remove();
+                        }
+                    })
+                    .catch(error => console.error('Error deleting book:', error));
+                }
+            }
+        });
+    </script>
 </body>
 </html>
