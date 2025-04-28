@@ -12,8 +12,6 @@ try {
 
     if (isset($_GET['student_id'])) {
         $student_id = $_GET['student_id'];
-
-        // Corrected query with the proper column name "contact_number"
         $query = "SELECT student_id, full_name, program, contact_number, email, username FROM students WHERE student_id = :student_id";
         
         $stmt = $pdo->prepare($query);

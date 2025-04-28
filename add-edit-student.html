@@ -81,8 +81,6 @@
               class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
         </div>
-
-        <!-- Hidden input for QR Code Data -->
         <input type="hidden" id="qrCodeData" name="qr_code" value="">
 
         <div class="flex items-center justify-between space-x-4 pt-6">
@@ -119,96 +117,98 @@
 </div>
 
 <script src="sidebar.js"></script>
+<script src="sidebar.js"></script>
 <script>
-  let barcodeGenerated = false;
-  const studentIdField = document.getElementById('student-id');
-  const qrCodeDataField = document.getElementById('qrCodeData');
-  const form = document.getElementById('student-form');
+    let barcodeGenerated = false;
+    const studentIdField = document.getElementById('student-id');
+    const qrCodeDataField = document.getElementById('qrCodeData');
+    const form = document.getElementById('student-form');
 
-  function generateRandomStudentID() {
-    return 'STU' + Math.floor(100000000 + Math.random() * 900000000);
-  }
-
-  function openQRModal() {
-    const studentId = studentIdField.value;
-    const modal = document.getElementById('qrModal');
-    const content = document.getElementById('qrModalContent');
-    const qrOutput = document.getElementById('qrOutput');
-
-    qrOutput.innerHTML = '';
-    new QRCode(qrOutput, {
-      text: studentId,
-      width: 180,
-      height: 180,
-    });
-
-    document.getElementById('qrPreview').textContent = studentId;
-    barcodeGenerated = true;
-
-    modal.classList.remove('hidden');
-    requestAnimationFrame(() => {
-      content.classList.remove('scale-90', 'opacity-0');
-      content.classList.add('scale-100', 'opacity-100');
-    });
-  }
-
-  function closeQRModal() {
-    const modal = document.getElementById('qrModal');
-    const content = document.getElementById('qrModalContent');
-    content.classList.remove('scale-100', 'opacity-100');
-    content.classList.add('scale-90', 'opacity-0');
-    setTimeout(() => modal.classList.add('hidden'), 200);
-  }
-
-  function handleCancel() {
-    if (!barcodeGenerated) {
-      alert("No changes have been made.");
+    function generateRandomStudentID() {
+        return 'STU' + Math.floor(100000000 + Math.random() * 900000000);
     }
-    window.location.href = "students_list.php"; // ← Replace with your actual list page
-  }
 
-  function getStudentIdFromURL() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('student_id');
-  }
+    function openQRModal() {
+        const studentId = studentIdField.value;
+        const modal = document.getElementById('qrModal');
+        const content = document.getElementById('qrModalContent');
+        const qrOutput = document.getElementById('qrOutput');
 
-  function fetchStudentData(studentId) {
-    fetch(`fetch_student_edit.php?student_id=${studentId}`)
-      .then(response => response.json())
-      .then(data => {
-        if (data) {
-          document.getElementById('student-name').value = data.full_name;
-          document.getElementById('student-id').value = data.student_id;
-          document.getElementById('student-program').value = data.program;
-          document.getElementById('student-contact_number').value = data.contact_number;
-          document.getElementById('student-email').value = data.email;
-          document.getElementById('student-username').value = data.username;
-          document.getElementById('student-password').value = ""; 
+        qrOutput.innerHTML = '';
+        new QRCode(qrOutput, {
+            text: studentId,
+            width: 180,
+            height: 180,
+        });
+
+        document.getElementById('qrPreview').textContent = studentId;
+        barcodeGenerated = true;
+
+        modal.classList.remove('hidden');
+        requestAnimationFrame(() => {
+            content.classList.remove('scale-90', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+        });
+    }
+
+    function closeQRModal() {
+        const modal = document.getElementById('qrModal');
+        const content = document.getElementById('qrModalContent');
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-90', 'opacity-0');
+        setTimeout(() => modal.classList.add('hidden'), 200);
+    }
+
+    function handleCancel() {
+        if (!barcodeGenerated) {
+            alert("No changes have been made.");
         }
-      })
-      .catch(error => {
-        console.error('Error fetching student data:', error);
-      });
-  }
+        window.location.href = "students.html"; 
+    }
 
-  // Main: when page loads
-  window.onload = function() {
-    const studentId = getStudentIdFromURL();
-    if (studentId) {
-      fetchStudentData(studentId);
-    } else {
-      // Only generate a random ID if adding new student
-      studentIdField.value = generateRandomStudentID();
+    function getStudentIdFromURL() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('student_id');
     }
-  }
-  form.onsubmit = function(e) {
-    if (!barcodeGenerated) {
-      alert("Please generate a QR Code before saving.");
-      e.preventDefault(); // prevent form from submitting
-      return false;
+
+    function fetchStudentData(studentId) {
+        fetch(`fetch_student_edit.php?student_id=${studentId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data) {
+                document.getElementById('student-name').value = data.full_name;
+                document.getElementById('student-id').value = data.student_id;
+                document.getElementById('student-program').value = data.program;
+                document.getElementById('student-contact_number').value = data.contact_number;
+                document.getElementById('student-email').value = data.email;
+                document.getElementById('student-username').value = data.username;
+                document.getElementById('student-password').value = ""; 
+                barcodeGenerated = true; 
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching student data:', error);
+        });
     }
-    qrCodeDataField.value = studentIdField.value; // Save QR Code Data before submitting
-  }
+
+    window.onload = function() {
+        const studentId = getStudentIdFromURL();
+        if (studentId) {
+            fetchStudentData(studentId);
+        } else {
+            studentIdField.value = generateRandomStudentID();
+        }
+    }
+
+    form.onsubmit = function(e) {
+        if (!barcodeGenerated) {
+            alert("Please generate a QR Code before saving.");
+            e.preventDefault(); 
+            return false;
+        }
+        qrCodeDataField.value = studentIdField.value; 
+    }
 </script>
+
 </body>
 </html>

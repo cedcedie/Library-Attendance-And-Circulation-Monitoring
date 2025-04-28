@@ -1,5 +1,4 @@
 <?php
-// Database connection parameters
 $host = "localhost"; 
 $port = "5432"; 
 $dbname = "library_system"; 
@@ -7,7 +6,6 @@ $user = "postgres";
 $password = "librarySystem"; 
 
 try {
-    // Create a connection to the PostgreSQL database
     $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;";
     $pdo = new PDO($dsn, $user, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -20,8 +18,6 @@ try {
         $email = $_POST['email'];
         $username = $_POST['username'];
         $password_raw = $_POST['password'];
-
-        // Hash the password before saving it!
         $password_hashed = password_hash($password_raw, PASSWORD_DEFAULT);
 
         $query = "UPDATE students 
@@ -41,11 +37,10 @@ try {
             'contact_number' => $contactnumber,
             'email' => $email,
             'username' => $username,
-            'password' => $password_hashed,  // Use hashed password
+            'password' => $password_hashed, 
             'student_id' => $student_id
         ]);
 
-        // Redirect back to students page after successful update
         header("Location: students.html");
         exit;
     } else {

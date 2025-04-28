@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="sidebar.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -15,6 +16,10 @@
     .scale-90 { transform: scale(0.9); }
     .opacity-0 { opacity: 0; }
     .opacity-100 { opacity: 1; }
+    .form-container {
+      max-height: 600px; 
+      overflow-y: auto; 
+    }
   </style>
 </head>
 
@@ -27,66 +32,179 @@
       <h1 class="text-3xl font-semibold text-gray-800">Add / Edit Book</h1>
     </header>
 
-    <div class="bg-white shadow-lg rounded-lg p-8">
-      <form id="bookForm" action="insert_books.php" method="POST" class="space-y-6">
+    <div class="bg-white shadow-lg rounded-lg p-8 form-container">
+      <form id="book-form" method="POST">
+        <input type="hidden" id="is-edit" name="is_edit" value="false">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
           <div>
-            <label class="block text-gray-700 font-medium mb-1">Author</label>
-            <input required name="author" type="text" placeholder="Enter author's name"
+            <label class="block text-gray-700 font-medium mb-1">Title</label>
+            <input required id="book-title" name="title" type="text" placeholder="Enter book title"
                    class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
 
           <div>
-            <label class="block text-gray-700 font-medium mb-1">Title</label>
-            <input required name="title" type="text" placeholder="Enter book title"
+            <label class="block text-gray-700 font-medium mb-1">Author</label>
+            <input required name="author" id="book-author" type="text" placeholder="Enter author's name"
                    class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
 
           <div>
             <label class="block text-gray-700 font-medium mb-1">Book ID</label>
-            <input id="bookId" name="book_id" type="text" readonly
+            <input id="book-id" name="book_id" type="text" readonly
                    class="w-full p-3 border bg-gray-100 rounded-lg shadow-sm focus:outline-none">
           </div>
-
-          <div>
-            <label class="block text-gray-700 font-medium mb-1">QR Code Text (Same as Book ID)</label>
-            <input id="qrCodeText" name="qr_code_text" type="text" readonly
-                   class="w-full p-3 border bg-gray-100 rounded-lg shadow-sm focus:outline-none">
-          </div>
-
+          <input type="hidden" id="qrCodeData" name="qr_code" value="">
         </div>
-
-        <div class="flex items-center justify-end pt-6 space-x-4">
-          <button type="button" onclick="window.location.href='books.html'" 
-                  class="bg-gray-300 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-400 transition-all duration-300">
-            Cancel
-          </button>
-          <button type="submit" 
-                  class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-all duration-300">
-            Save Changes
-          </button>
+        <div class="flex items-center justify-between space-x-4 pt-6">
+          <div class="flex items-center space-x-4">
+            <div id="qrPreview" class="w-full p-3 border rounded-lg shadow-sm bg-gray-100 text-gray-600 text-center">
+              (QR Code not generated yet)
+            </div>
+            <button type="button" onclick="openQRModal()" class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-all duration-300">
+              Generate QR Code
+            </button>
+          </div>
+          <div class="flex-grow border-t border-gray-300 mx-4"></div>
+          <div class="flex items-center space-x-4">
+            <button type="button" onclick="handleCancel()" class="bg-gray-300 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-400 transition-all duration-300">
+              Cancel
+            </button>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">Save Changes</button>
+          </div>
         </div>
       </form>
     </div>
   </div>
 </div>
 
-<script>
-  function generateRandomBookID() {
-    return 'BOOK' + Math.floor(100000000 + Math.random() * 900000000);
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    const bookIdInput = document.getElementById('bookId');
-    const qrCodeTextInput = document.getElementById('qrCodeText');
-    const generatedId = generateRandomBookID();
-    
-    bookIdInput.value = generatedId;
-    qrCodeTextInput.value = generatedId; // Set QR code text to be the same as Book ID
-  });
-</script>
+<div id="qrModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+  <div id="qrModalContent" class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 text-center scale-90 opacity-0 transition-all duration-300 ease-out">
+    <h2 class="text-2xl font-semibold text-gray-800 mb-4">🎉 QR Code Preview</h2>
+    <div id="qrOutput" class="mb-4 flex justify-center"></div>
+    <p class="text-sm text-gray-500 mb-4">QR based on Book ID</p>
+    <button onclick="closeQRModal()" class="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700 transition font-medium">
+      Close
+    </button>
+  </div>
+</div>
 
 <script src="sidebar.js"></script>
+<script>
+    let barcodeGenerated = false;
+    const bookIdField = document.getElementById('book-id');
+    const qrCodeDataField = document.getElementById('qrCodeData');
+    const form = document.getElementById('book-form');
+    const isEditField = document.getElementById('is-edit');
+
+    function generateRandomBookID() {
+        return 'BK' + Math.floor(100000000 + Math.random() * 900000000);
+    }
+
+    function openQRModal() {
+        const bookId = bookIdField.value;
+        if (!bookId) {
+            alert("Please generate a Book ID first");
+            return;
+        }
+
+        const modal = document.getElementById('qrModal');
+        const content = document.getElementById('qrModalContent');
+        const qrOutput = document.getElementById('qrOutput');
+
+        qrOutput.innerHTML = '';
+        new QRCode(qrOutput, {
+            text: bookId,
+            width: 180,
+            height: 180,
+        });
+
+        document.getElementById('qrPreview').textContent = bookId;
+        barcodeGenerated = true;
+
+        modal.classList.remove('hidden');
+        requestAnimationFrame(() => {
+            content.classList.remove('scale-90', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+        });
+    }
+
+    function closeQRModal() {
+        const modal = document.getElementById('qrModal');
+        const content = document.getElementById('qrModalContent');
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-90', 'opacity-0');
+        setTimeout(() => modal.classList.add('hidden'), 200);
+    }
+
+    function handleCancel() {
+        if (!barcodeGenerated) {
+            alert("No changes have been made.");
+        }
+        window.location.href = "books.html"; 
+    }
+
+    function getBookIdFromURL() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('book_id');
+    }
+
+    function fetchBookData(bookId) {
+        fetch(`fetch_book_edit.php?book_id=${bookId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data && !data.error) {
+                document.getElementById('book-title').value = data.title;
+                document.getElementById('book-author').value = data.author;
+                document.getElementById('book-id').value = data.book_id;
+                isEditField.value = "true";
+                barcodeGenerated = true;
+                
+                document.getElementById('qrPreview').textContent = data.book_id;
+            } else {
+                console.error('Error fetching book:', data?.error || 'Unknown error');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching book data:', error);
+        });
+    }
+    window.onload = function() {
+        const bookId = getBookIdFromURL();
+        if (bookId) {
+            fetchBookData(bookId);
+        } else {
+            bookIdField.value = generateRandomBookID();
+        }
+    }
+
+    form.onsubmit = function(e) {
+        e.preventDefault();
+        
+        if (!barcodeGenerated) {
+            alert("Please generate a QR Code before saving.");
+            return false;
+        }
+
+        qrCodeDataField.value = bookIdField.value;
+
+        fetch('insert_books.php', {
+            method: 'POST',
+            body: new FormData(form)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                window.location.href = "books.html";
+            } else {
+                alert(data.error || "Failed to save book");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("An error occurred. Please try again.");
+        });
+    }
+</script>
 </body>
 </html>

@@ -4,6 +4,8 @@ require 'vendor/autoload.php';
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
 
+header('Content-Type: application/json');
+
 $host = "localhost"; 
 $port = "5432"; 
 $dbname = "library_system"; 
@@ -11,21 +13,20 @@ $user = "postgres";
 $password = "librarySystem"; 
 
 try {
-    // Create a PDO connection
     $conn = new PDO("pgsql:host=$host;port=$port;dbname=$dbname", $user, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Check if the form is submitted via POST
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Get form data
-        $author = $_POST['author'];
-        $title = $_POST['title'];
-        $book_id = $_POST['book_id'];  // Ensure this matches the form field's name attribute
+        $author = $_POST['author'] ?? '';
+        $title = $_POST['title'] ?? '';
+        $book_id = $_POST['book_id'] ?? '';
+        $is_edit = isset($_POST['is_edit']) && $_POST['is_edit'] === 'true';
 
-        // Path for QR code image
-        $qr_code = 'images/qrcodes/' . $book_id . '.png';
+        if (empty($author) || empty($title) || empty($book_id)) {
+            throw new Exception("All fields are required");
+        }
 
-        // Set up QR Code options
+        $qr_code_path = 'images/qrcodes/' . $book_id . '.png';
         $options = new QROptions([
             'version'    => 5,
             'eccLevel'   => QRCode::ECC_L,
@@ -36,24 +37,25 @@ try {
         ]);
 
         $qrcode = new QRCode($options);
-        // Generate the QR code and save it as an image
-        $qrcode->render($book_id, $qr_code);
+        $qrcode->render($book_id, $qr_code_path);
 
-        // Insert new book into the database
-        $insertQuery = "INSERT INTO books (author, title, book_id, qr_code) VALUES (?, ?, ?, ?)";
-        $stmt = $conn->prepare($insertQuery);
-        $stmt->execute([$author, $title, $book_id, $qr_code]);
+        if ($is_edit) {
+            $updateQuery = "UPDATE books SET author = ?, title = ?, qr_code = ? WHERE book_id = ?";
+            $stmt = $conn->prepare($updateQuery);
+            $stmt->execute([$author, $title, $qr_code_path, $book_id]);
+            $message = "✅ Book updated successfully.";
+        } else {
+            $insertQuery = "INSERT INTO books (author, title, book_id, qr_code) VALUES (?, ?, ?, ?)";
+            $stmt = $conn->prepare($insertQuery);
+            $stmt->execute([$author, $title, $book_id, $qr_code_path]);
+            $message = "✅ New book added successfully.";
+        }
 
-        // Success message
-        echo "✅ New book added successfully.";
-
-        // Redirect after successful insertion
-        header("Location: books.html");
-        exit();
+        echo json_encode(['success' => true, 'message' => $message]);
     } else {
-        echo "❌ Invalid request method.";
+        throw new Exception("❌ Invalid request method.");
     }
-} catch (PDOException $e) {
-    echo "❌ Database connection failed: " . $e->getMessage();
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
 ?>
