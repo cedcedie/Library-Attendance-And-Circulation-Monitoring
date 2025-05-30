@@ -10,7 +10,7 @@ try {
     $pdo = new PDO($dsn, $user, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $query = "SELECT student_id, full_name, program, total_borrowed_books, total_attendance, qr_code FROM students";
+    $query = "SELECT student_id, full_name, program, total_borrowed, total_attendance, qr_code FROM students";
     $stmt = $pdo->prepare($query);
     $stmt->execute();
 

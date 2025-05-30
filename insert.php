@@ -43,14 +43,15 @@ try {
         $stmt->execute([$student_id]);
 
         if ($stmt->rowCount() > 0) {
-            $updateQuery = "UPDATE students SET full_name = ?, program = ?, contact_number = ?, email = ?, username = ?, password = ?, qr_code = ? WHERE student_id = ?";
+            $updateQuery = "UPDATE students SET full_name = ?, program = ?, contact_number = ?, email = ?, username = ?, password_hash = ?, qr_code = ? WHERE student_id = ?";
             $stmt = $conn->prepare($updateQuery);
             $stmt->execute([$full_name, $program, $contact_number, $email, $username, $password, $qr_code_path, $student_id]);
 
             echo "Student record updated.";
         } else {
-            $insertQuery = "INSERT INTO students (full_name, student_id, program, contact_number, email, username, password, qr_code)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+           $insertQuery = "INSERT INTO students (full_name, student_id, program, contact_number, email, username, password_hash, qr_code)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
             $stmt = $conn->prepare($insertQuery);
             $stmt->execute([$full_name, $student_id, $program, $contact_number, $email, $username, $password, $qr_code_path]);
 

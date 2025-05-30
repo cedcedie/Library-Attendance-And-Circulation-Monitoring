@@ -3,18 +3,636 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notifications</title>
+    <title>Library Notifications</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="sidebar.css">
-</head>
-<body>
-    <div class="page-container">
-
-        <div id="sidebar-container"></div>
+    <style>
+        .font-poppins {
+            font-family: 'Poppins', sans-serif;
+        }
         
+        /* STI Color Scheme */
+        .sti-blue { background-color: #003f7f; }
+        .sti-yellow { background-color: #ffcc00; color: #003f7f; }
+        .sti-red { background-color: #dc3545; }
+        .sti-green { background-color: #28a745; }
+        .sti-orange { background-color: #fd7e14; }
+        
+        .hover-sti-blue:hover { background-color: #002d5c; }
+        .hover-sti-yellow:hover { background-color: #e6b800; }
+        .hover-sti-red:hover { background-color: #c82333; }
+        .hover-sti-green:hover { background-color: #218838; }
+        .hover-sti-orange:hover { background-color: #e8690b; }
+        
+        .text-sti-blue { color: #003f7f; }
+        .text-sti-yellow { color: #ffcc00; }
+        
+        .border-sti-blue { border-color: #003f7f; }
+        .ring-sti-blue { --tw-ring-color: #003f7f; }
+        
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #003f7f;
+            border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #002d5c;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .status-overdue { background-color: #dc3545; }
+        .status-due-soon { background-color: #fd7e14; }
+        .status-returned { background-color: #28a745; }
+        .status-pending { background-color: #003f7f; }
+        
+        /* Enhanced button styles */
+        .btn-enhanced {
+            position: relative;
+            overflow: hidden;
+            transform: perspective(1px) translateZ(0);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-enhanced:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-poppins overflow-x-hidden">
+    <div class="flex min-h-screen">
+        <div id="sidebar-container"></div>
         <div class="main-content">
-  
+            <!-- Header Section -->
+            <header class="flex justify-between items-center mb-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">📚 Library Notifications</h1>
+                    <p class="text-gray-600 mt-1">Manage student notifications and circulation alerts</p>
+                </div>
+                <div class="flex space-x-3">
+                    <button onclick="openFeeSettingsModal()" class="sti-yellow text-white px-4 py-2 rounded-lg hover-sti-yellow transition-all duration-300 btn-enhanced">
+                        ⚙️ Fee Settings
+                    </button>
+                    <button onclick="sendBulkReminders()" class="sti-blue text-white px-4 py-2 rounded-lg hover-sti-blue transition-all duration-300 btn-enhanced">
+                        📢 Bulk Reminder
+                    </button>
+                </div>
+            </header>
+
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white p-6 rounded-lg shadow-lg border-l-4 border-red-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Overdue Books</p>
+                            <p class="text-2xl font-bold text-red-600" id="overdue-count">12</p>
+                        </div>
+                        <div class="text-red-500 text-3xl">⚠️</div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg border-l-4 border-orange-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Due Soon</p>
+                            <p class="text-2xl font-bold text-orange-600" id="due-soon-count">8</p>
+                        </div>
+                        <div class="text-orange-500 text-3xl">⏰</div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg border-l-4 border-green-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Returned Today</p>
+                            <p class="text-2xl font-bold text-green-600" id="returned-count">45</p>
+                        </div>
+                        <div class="text-green-500 text-3xl">✅</div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg border-l-4 border-blue-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Pending Actions</p>
+                            <p class="text-2xl font-bold text-sti-blue" id="pending-count">3</p>
+                        </div>
+                        <div class="text-sti-blue text-3xl">⏳</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls Section -->
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex space-x-2">
+                    <input type="text" placeholder="Search by student ID, name, or book title" 
+                           class="p-2 w-64 border rounded-lg shadow-sm focus:outline-none focus:ring-2 ring-sti-blue border-sti-blue" 
+                           id="search-input" onkeyup="searchNotifications(this.value)">
+                    <button class="sti-blue text-white px-4 py-2 rounded-lg hover-sti-blue transition-all duration-300 btn-enhanced">🔍 Search</button>
+                </div>
+                <div class="flex space-x-4">
+                    <select class="p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 ring-sti-blue border-sti-blue" id="status-filter" onchange="filterByStatus(this.value)">
+                        <option value="all">All Status</option>
+                        <option value="overdue">Overdue</option>
+                        <option value="due-soon">Due Soon</option>
+                        <option value="returned">Returned</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                    <button onclick="refreshNotifications()" class="sti-green text-white px-4 py-2 rounded-lg hover-sti-green transition-all duration-300 btn-enhanced">
+                        🔄 Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Notifications Table -->
+            <div class="overflow-x-auto bg-white shadow-lg rounded-lg custom-scrollbar">
+                <table class="min-w-full text-sm text-left text-gray-500">
+                    <thead class="sti-blue text-white">
+                        <tr>
+                            <th class="px-6 py-4 font-medium">Notification ID</th>
+                            <th class="px-6 py-4 font-medium">Student Info</th>
+                            <th class="px-6 py-4 font-medium">Book Details</th>
+                            <th class="px-6 py-4 font-medium">Message</th>
+                            <th class="px-6 py-4 font-medium">Status</th>
+                            <th class="px-6 py-4 font-medium">Fee</th>
+                            <th class="px-6 py-4 font-medium">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="notifications-table-body">
+                        <!-- Notifications will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-between items-center mt-6">
+                <div class="text-sm text-gray-600" id="pagination-info">Showing 1-10 of 100 records</div>
+                <div class="flex space-x-2">
+                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-300 btn-enhanced">Previous</button>
+                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-300 btn-enhanced">Next</button>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Edit Message Modal -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <div class="sti-blue text-white px-6 py-4 rounded-t-lg">
+                <h2 class="text-xl font-bold">✏️ Edit Notification Message</h2>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Notification ID</label>
+                    <input type="text" id="edit-notification-id" class="w-full p-3 border rounded-lg bg-gray-100" readonly>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Student Name</label>
+                    <input type="text" id="edit-student-name" class="w-full p-3 border rounded-lg bg-gray-100" readonly>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Message <span class="text-red-500">*</span></label>
+                    <textarea id="edit-message" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 ring-sti-blue border-sti-blue" rows="4" placeholder="Enter notification message..."></textarea>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeMessageModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-all duration-300 btn-enhanced">Cancel</button>
+                    <button onclick="saveMessage()" class="sti-blue text-white px-4 py-2 rounded-lg hover-sti-blue transition-all duration-300 btn-enhanced">💾 Save Message</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fee Settings Modal -->
+    <div id="feeModal" class="modal">
+        <div class="modal-content">
+            <div class="sti-yellow text-white px-6 py-4 rounded-t-lg">
+                <h2 class="text-xl font-bold">⚙️ Overdue Fee Settings</h2>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Daily Overdue Fee (₱)</label>
+                    <input type="number" id="daily-fee" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 ring-sti-blue border-sti-blue" placeholder="5.00" step="0.01">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Maximum Fee Cap (₱)</label>
+                    <input type="number" id="max-fee" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 ring-sti-blue border-sti-blue" placeholder="100.00" step="0.01">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Grace Period (Days)</label>
+                    <input type="number" id="grace-period" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 ring-sti-blue border-sti-blue" placeholder="3" min="0">
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeFeeModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-all duration-300 btn-enhanced">Cancel</button>
+                    <button onclick="saveFeeSettings()" class="sti-yellow text-white px-4 py-2 rounded-lg hover-sti-yellow transition-all duration-300 btn-enhanced">💾 Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="sidebar.js"></script>
-</body>
-</html>
+    <script>
+        // Sample notification data with STI-styled structure
+        const notificationsData = [
+            {
+                id: "NOT-001",
+                studentId: "STU-2024-001",
+                studentName: "John Michael Santos",
+                bookTitle: "Introduction to Computer Science",
+                author: "Robert Sedgewick",
+                isbn: "978-0134092669",
+                borrowDate: "2024-05-15",
+                dueDate: "2024-05-29",
+                message: "Your borrowed book is now 1 day overdue. Please return it immediately to avoid additional penalties.",
+                status: "overdue",
+                fee: 15.00,
+                daysOverdue: 3,
+                dateSent: "2024-05-30"
+            },
+            {
+                id: "NOT-002",
+                studentId: "STU-2024-002",
+                studentName: "Maria Clara Reyes",
+                bookTitle: "Fundamentals of Database Systems",
+                author: "Ramez Elmasri",
+                isbn: "978-0133970777",
+                borrowDate: "2024-05-20",
+                dueDate: "2024-06-03",
+                message: "Reminder: Your borrowed book is due in 4 days. Please plan to return it on time.",
+                status: "due-soon",
+                fee: 0.00,
+                daysOverdue: 0,
+                dateSent: "2024-05-30"
+            },
+            {
+                id: "NOT-003",
+                studentId: "STU-2024-003",
+                studentName: "Jose Rizal Cruz",
+                bookTitle: "Data Structures and Algorithms",
+                author: "Michael T. Goodrich",
+                isbn: "978-1118771334",
+                borrowDate: "2024-05-10",
+                dueDate: "2024-05-24",
+                message: "Thank you for returning your book on time! Your library record has been updated.",
+                status: "returned",
+                fee: 0.00,
+                daysOverdue: 0,
+                dateSent: "2024-05-24"
+            },
+            {
+                id: "NOT-004",
+                studentId: "STU-2024-004",
+                studentName: "Anna Marie Lopez",
+                bookTitle: "Software Engineering Principles",
+                author: "Ian Sommerville",
+                isbn: "978-0137053469",
+                borrowDate: "2024-05-28",
+                dueDate: "2024-06-11",
+                message: "Your book reservation is ready for pickup. Please visit the circulation desk within 24 hours.",
+                status: "pending",
+                fee: 0.00,
+                daysOverdue: 0,
+                dateSent: "2024-05-30"
+            },
+            {
+                id: "NOT-005",
+                studentId: "STU-2024-005",
+                studentName: "Carlos Miguel Torres",
+                bookTitle: "Operating System Concepts",
+                author: "Abraham Silberschatz",
+                isbn: "978-1119320913",
+                borrowDate: "2024-05-12",
+                dueDate: "2024-05-26",
+                message: "URGENT: Your borrowed book is now 4 days overdue. Please return immediately.",
+                status: "overdue",
+                fee: 25.00,
+                daysOverdue: 5,
+                dateSent: "2024-05-30"
+            }
+        ];
+
+        let currentFilter = 'all';
+        let currentSearch = '';
+        let currentEditingId = null;
+
+        // Fee settings
+        let feeSettings = {
+            dailyFee: 5.00,
+            maxFee: 100.00,
+            gracePeriod: 3
+        };
+
+        function initializeNotifications() {
+            displayNotifications(notificationsData);
+            updateStats();
+            loadFeeSettings();
+        }
+
+        function displayNotifications(notifications) {
+            const tbody = document.getElementById('notifications-table-body');
+            
+            if (notifications.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                            <div class="text-4xl mb-4">📚</div>
+                            <div class="text-lg font-medium">No notifications found</div>
+                            <div class="text-sm">All caught up! No notifications match your current filter.</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = notifications.map(notification => `
+                <tr class="border-b hover:bg-gray-50 transition-colors duration-200" data-status="${notification.status}">
+                    <td class="px-6 py-4 font-medium text-sti-blue">${notification.id}</td>
+                    <td class="px-6 py-4">
+                        <div class="font-medium text-gray-900">${notification.studentName}</div>
+                        <div class="text-sm text-gray-500">ID: ${notification.studentId}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="font-medium text-gray-900">${notification.bookTitle}</div>
+                        <div class="text-sm text-gray-500">by ${notification.author}</div>
+                        <div class="text-xs text-gray-400">Due: ${formatDate(notification.dueDate)}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-700 max-w-xs truncate" title="${notification.message}">
+                            ${notification.message}
+                        </div>
+                        <button onclick="editMessage('${notification.id}')" class="text-xs text-sti-blue hover:underline mt-1">
+                            ✏️ Edit Message
+                        </button>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusClass(notification.status)}">
+                            <span class="status-dot status-${notification.status}"></span>
+                            ${notification.status.replace('-', ' ').toUpperCase()}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="font-medium ${notification.fee > 0 ? 'text-red-600' : 'text-green-600'}">
+                            ₱${notification.fee.toFixed(2)}
+                        </div>
+                        ${notification.daysOverdue > 0 ? `<div class="text-xs text-red-500">${notification.daysOverdue} days overdue</div>` : ''}
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex space-x-2">
+                            <button onclick="sendReminder('${notification.id}')" 
+                                    class="sti-blue text-white px-3 py-1 rounded text-xs hover-sti-blue transition-all duration-300 btn-enhanced">
+                                📢 Remind
+                            </button>
+                            ${notification.status === 'overdue' ? `
+                                <button onclick="editFee('${notification.id}')" 
+                                        class="sti-orange text-white px-3 py-1 rounded text-xs hover-sti-orange transition-all duration-300 btn-enhanced">
+                                    💰 Edit Fee
+                                </button>
+                            ` : ''}
+                            <button onclick="markAsRead('${notification.id}')" 
+                                    class="sti-green text-white px-3 py-1 rounded text-xs hover-sti-green transition-all duration-300 btn-enhanced">
+                                ✓ Mark Read
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getStatusClass(status) {
+            const classes = {
+                'overdue': 'bg-red-100 text-red-800',
+                'due-soon': 'bg-orange-100 text-orange-800',
+                'returned': 'bg-green-100 text-green-800',
+                'pending': 'bg-blue-100 text-blue-800'
+            };
+            return classes[status] || 'bg-gray-100 text-gray-800';
+        }
+
+        function searchNotifications(query) {
+            currentSearch = query.toLowerCase();
+            applyFilters();
+        }
+
+        function filterByStatus(status) {
+            currentFilter = status;
+            applyFilters();
+        }
+
+        function applyFilters() {
+            let filtered = notificationsData;
+            
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(notification => notification.status === currentFilter);
+            }
+            
+            if (currentSearch) {
+                filtered = filtered.filter(notification => 
+                    notification.studentName.toLowerCase().includes(currentSearch) ||
+                    notification.studentId.toLowerCase().includes(currentSearch) ||
+                    notification.bookTitle.toLowerCase().includes(currentSearch) ||
+                    notification.id.toLowerCase().includes(currentSearch)
+                );
+            }
+            
+            displayNotifications(filtered);
+            updatePaginationInfo(filtered.length);
+        }
+
+        function updateStats() {
+            const stats = notificationsData.reduce((acc, notification) => {
+                acc[notification.status] = (acc[notification.status] || 0) + 1;
+                return acc;
+            }, {});
+
+            document.getElementById('overdue-count').textContent = stats.overdue || 0;
+            document.getElementById('due-soon-count').textContent = stats['due-soon'] || 0;
+            document.getElementById('returned-count').textContent = stats.returned || 0;
+            document.getElementById('pending-count').textContent = stats.pending || 0;
+        }
+
+        function updatePaginationInfo(count) {
+            document.getElementById('pagination-info').textContent = `Showing 1-${count} of ${notificationsData.length} records`;
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric'
+            });
+        }
+
+        // Modal Functions
+        function editMessage(notificationId) {
+            const notification = notificationsData.find(n => n.id === notificationId);
+            if (notification) {
+                currentEditingId = notificationId;
+                document.getElementById('edit-notification-id').value = notification.id;
+                document.getElementById('edit-student-name').value = notification.studentName;
+                document.getElementById('edit-message').value = notification.message;
+                document.getElementById('messageModal').style.display = 'block';
+            }
+        }
+
+        function closeMessageModal() {
+            document.getElementById('messageModal').style.display = 'none';
+            currentEditingId = null;
+        }
+
+        function saveMessage() {
+            const newMessage = document.getElementById('edit-message').value.trim();
+            if (newMessage && currentEditingId) {
+                const notification = notificationsData.find(n => n.id === currentEditingId);
+                if (notification) {
+                    notification.message = newMessage;
+                    displayNotifications(notificationsData);
+                    closeMessageModal();
+                    alert('✅ Message updated successfully!');
+                }
+            } else {
+                alert('⚠️ Please enter a valid message.');
+            }
+        }
+
+        function openFeeSettingsModal() {
+            document.getElementById('daily-fee').value = feeSettings.dailyFee;
+            document.getElementById('max-fee').value = feeSettings.maxFee;
+            document.getElementById('grace-period').value = feeSettings.gracePeriod;
+            document.getElementById('feeModal').style.display = 'block';
+        }
+
+        function closeFeeModal() {
+            document.getElementById('feeModal').style.display = 'none';
+        }
+
+        function saveFeeSettings() {
+            feeSettings.dailyFee = parseFloat(document.getElementById('daily-fee').value) || 5.00;
+            feeSettings.maxFee = parseFloat(document.getElementById('max-fee').value) || 100.00;
+            feeSettings.gracePeriod = parseInt(document.getElementById('grace-period').value) || 3;
+            
+            closeFeeModal();
+            alert('✅ Fee settings updated successfully!');
+            
+            // Recalculate fees for overdue books
+            recalculateFees();
+        }
+
+        function loadFeeSettings() {
+            // Load from localStorage or use defaults
+            const saved = localStorage.getItem('libraryFeeSettings');
+            if (saved) {
+                feeSettings = JSON.parse(saved);
+            }
+        }
+
+        function recalculateFees() {
+            notificationsData.forEach(notification => {
+                if (notification.status === 'overdue' && notification.daysOverdue > feeSettings.gracePeriod) {
+                    const overdueDays = notification.daysOverdue - feeSettings.gracePeriod;
+                    notification.fee = Math.min(overdueDays * feeSettings.dailyFee, feeSettings.maxFee);
+                }
+            });
+            displayNotifications(notificationsData);
+        }
+
+        // Action Functions
+        function sendReminder(notificationId) {
+            const notification = notificationsData.find(n => n.id === notificationId);
+            if (notification) {
+                alert(`📢 Reminder sent to ${notification.studentName} (${notification.studentId})\n\nMessage: ${notification.message}`);
+                // Here you would implement actual email/SMS sending
+            }
+        }
+
+        function editFee(notificationId) {
+            const notification = notificationsData.find(n => n.id === notificationId);
+            if (notification) {
+                const newFee = prompt(`Current fee: ₱${notification.fee.toFixed(2)}\n\nEnter new fee amount:`, notification.fee);
+                if (newFee !== null && !isNaN(newFee) && newFee >= 0) {
+                    notification.fee = parseFloat(newFee);
+                    displayNotifications(notificationsData);
+                    alert('✅ Fee updated successfully!');
+                }
+            }
+        }
+
+        function markAsRead(notificationId) {
+            if (confirm('Mark this notification as read?')) {
+                // Here you would update the notification status in your database
+                alert(`✅ Notification ${notificationId} marked as read!`);
+            }
+        }
+
+        function sendBulkReminders() {
+            const overdueNotifications = notificationsData.filter(n => n.status === 'overdue');
+            if (overdueNotifications.length === 0) {
+                alert('ℹ️ No overdue notifications to send reminders for.');
+                return;
+            }
+            
+            if (confirm(`Send reminders to ${overdueNotifications.length} students with overdue books?`)) {
+                alert(`📢 Bulk reminders sent to ${overdueNotifications.length} students!`);
+                // Here you would implement bulk email/SMS sending
+            }
+        }
+
+        function refreshNotifications() {
+            // Here you would fetch fresh data from your backend
+            alert('🔄 Notifications refreshed!');
+            initializeNotifications();
+
+        }
+        
