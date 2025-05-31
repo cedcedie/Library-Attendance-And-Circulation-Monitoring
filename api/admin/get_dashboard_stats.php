@@ -1,5 +1,8 @@
 <?php
-require_once __DIR__ . '/../../config/database.php';
+if (!file_exists(__DIR__ . '/../config/database.php')) {
+    die("Database config not found!");
+}
+require_once __DIR__ . '/../config/database.php';
 
 $students = $conn->query("SELECT COUNT(*) FROM students")->fetchColumn();
 $books = $conn->query("SELECT COUNT(*) FROM books")->fetchColumn();

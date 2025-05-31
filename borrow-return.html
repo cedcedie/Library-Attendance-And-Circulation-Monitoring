@@ -1,107 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Logs</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="sidebar.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Borrow & Return Requests</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="sidebar.css"/>
 </head>
 <body class="bg-gray-50 font-poppins overflow-x-hidden">
-    <div class="flex min-h-screen">
-        <div id="sidebar-container"></div>
-        <div class="main-content">
-            <header class="flex justify-between items-center mb-6">
-                <h1 class="text-3xl font-bold text-gray-800">Borrow & Return Requests</h1>
-            </header>
-            <div class="flex justify-between items-center mb-4">
-                <div class="flex space-x-2">
-                    <input type="text" placeholder="Search by Student ID, Name, or Book Title" class="p-2 w-64 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">Search</button>
-                </div>
-                <div class="flex space-x-4">
-                    <select class="p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option>Sort by</option>
-                        <option>Request ID</option>
-                        <option>Student ID</option>
-                        <option>Name</option>
-                        <option>Book Title</option>
-                        <option>Request Type</option>
-                    </select>
+  <div class="flex min-h-screen">
+    <div id="sidebar-container"></div>
+    <div class="main-content flex-1 p-6">
+      <header class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Borrow & Return Requests</h1>
+      </header>
 
-                </div>
-            </div>
-            <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
-                <table class="min-w-full text-sm text-left text-gray-500">
-                    <thead class="bg-gray-800 text-white">
-                        <tr>
-                            <th class="px-6 py-4 font-medium">Request ID</th>
-                            <th class="px-6 py-4 font-medium">Student ID</th>
-                            <th class="px-6 py-4 font-medium">Student Name</th>
-                            <th class="px-6 py-4 font-medium">Book Title</th>
-                            <th class="px-6 py-4 font-medium">Request Type</th>
-                            <th class="px-6 py-4 font-medium">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="px-6 py-4">REQ012</td>
-                            <td class="px-6 py-4">12345</td>
-                            <td class="px-6 py-4">Adrian Miravil</td>
-                            <td class="px-6 py-4">Introduction to Programming</td>
-                            <td class="px-6 py-4">
-                                <span class="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">Borrow</span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="flex space-x-2">
-                                    <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300">Approve</button>
-                                    <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300">Reject</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="px-6 py-4">REQ013</td>
-                            <td class="px-6 py-4">67890</td>
-                            <td class="px-6 py-4">Kezia Barrameda</td>
-                            <td class="px-6 py-4">Advanced Biology</td>
-                            <td class="px-6 py-4">
-                                <span class="px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">Return</span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="flex space-x-2">
-                                    <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300">Approve</button>
-                                    <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300">Reject</button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="px-6 py-4">REQ014</td>
-                            <td class="px-6 py-4">11223</td>
-                            <td class="px-6 py-4">Adrian Robles</td>
-                            <td class="px-6 py-4">Calculus 101</td>
-                            <td class="px-6 py-4">
-                                <span class="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">Borrow</span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="flex space-x-2">
-                                    <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300">Approve</button>
-                                    <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300">Reject</button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="flex justify-between items-center mt-6">
-                <div class="text-sm text-gray-600">Showing 1-10 of 100 records</div>
-                <div class="flex space-x-2">
-                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Previous</button>
-                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Next</button>
-                </div>
-            </div>
-        </div>
+      <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
+        <table class="min-w-full text-sm text-left text-gray-500">
+          <thead class="bg-gray-800 text-white">
+            <tr>
+              <th class="px-6 py-4 font-medium">Request ID</th>
+              <th class="px-6 py-4 font-medium">Student ID</th>
+              <th class="px-6 py-4 font-medium">Name</th>
+              <th class="px-6 py-4 font-medium">Book ID</th>
+              <th class="px-6 py-4 font-medium">Book Title</th>
+              <th class="px-6 py-4 font-medium">Request Type</th>
+              <th class="px-6 py-4 font-medium">Status</th>
+              <th class="px-6 py-4 font-medium">Requested At</th>
+              <th class="px-6 py-4 font-medium">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="request-table-body">
+            <!-- Rows will be loaded via JS/PHP -->
+          </tbody>
+        </table>
+      </div>
     </div>
-    <script src="sidebar.js"></script>
+  </div>
+
+  <!-- Modal -->
+  <div id="confirmation-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+  <div class="bg-white p-6 rounded-xl shadow-xl w-96">
+    <h2 class="text-lg font-semibold mb-4 text-gray-800">Confirm Action</h2>
+    <p id="modal-message" class="text-gray-700 mb-6">Are you sure you want to proceed?</p>
+    <div class="flex justify-end space-x-3">
+      <button id="cancel-btn" class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400">Cancel</button>
+      <button id="confirm-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Confirm</button>
+    </div>
+  </div>
+</div>
+  <script src="sidebar.js"></script>
+  <script>
+    const modal = document.getElementById('confirmation-modal');
+    const modalMessage = document.getElementById('modal-message');
+    const confirmBtn = document.getElementById('confirm-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+    let currentAction = null;
+    let currentRequestId = null;
+
+    function showModal(action, requestId) {
+      currentAction = action;
+      currentRequestId = requestId;
+      modalMessage.textContent = `Are you sure you want to ${action.toLowerCase()} request ${requestId}?`;
+      modal.classList.remove('hidden');
+    }
+
+    cancelBtn.onclick = () => {
+      modal.classList.add('hidden');
+      currentAction = null;
+      currentRequestId = null;
+    };
+
+    confirmBtn.onclick = () => {
+      if (currentAction && currentRequestId) {
+        fetch('fetch_request.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `action=${currentAction.toLowerCase()}&request_id=${currentRequestId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert(`Request ${currentRequestId} ${currentAction}d successfully.`);
+            loadRequests(); // Refresh table
+          } else {
+            alert(`Error: ${data.message}`);
+          }
+          modal.classList.add('hidden');
+        });
+      }
+    };
+
+    function loadRequests() {
+      fetch('fetch_request.php?action=list')
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.getElementById('request-table-body');
+          tbody.innerHTML = '';
+          data.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.className = 'border-b hover:bg-gray-50';
+
+            tr.innerHTML = `
+              <td class="px-6 py-4">${row.request_id}</td>
+              <td class="px-6 py-4">${row.student_id}</td>
+              <td class="px-6 py-4">${row.name}</td>
+              <td class="px-6 py-4">${row.book_id}</td>
+              <td class="px-6 py-4">${row.book_title}</td>
+              <td class="px-6 py-4">
+                <span class="px-3 py-1 text-xs font-medium rounded-full ${row.request_type === 'Borrow' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}">
+                  ${row.request_type}
+                </span>
+              </td>
+              <td class="px-6 py-4">${row.status}</td>
+              <td class="px-6 py-4">${row.requested_at}</td>
+              <td class="px-6 py-4">
+                <div class="flex space-x-2">
+                  <button onclick="showModal('Approve', '${row.request_id}')" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300">Approve</button>
+                  <button onclick="showModal('Reject', '${row.request_id}')" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300">Reject</button>
+                </div>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        });
+    }
+
+    // Load on page load
+    window.onload = loadRequests;
+  </script>
 </body>
 </html>

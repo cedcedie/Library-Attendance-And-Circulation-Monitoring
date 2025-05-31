@@ -1,5 +1,8 @@
 <?php
-require_once __DIR__ . '/../../config/database.php';
+if (!file_exists(__DIR__ . '/../config/database.php')) {
+    die("Database config not found!");
+}
+require_once __DIR__ . '/../config/database.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
 $student_id = $data['student_id'];

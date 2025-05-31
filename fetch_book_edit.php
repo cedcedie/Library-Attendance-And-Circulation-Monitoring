@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json'); // Ensure JSON response
-error_log("Fetch book request received.");
+error_log("Insert book request received.");
 
 $host = "localhost";
 $port = "5432";
@@ -13,21 +13,29 @@ try {
     $pdo = new PDO($dsn, $user, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['book_id'])) {
-        $book_id = $_GET['book_id'];
-        error_log("Fetching book ID: " . $book_id);
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $input = json_decode(file_get_contents("php://input"), true);
 
-        $stmt = $pdo->prepare("SELECT * FROM books WHERE book_id = :book_id");
-        $stmt->execute(['book_id' => $book_id]);
-        $book = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($book) {
-            error_log("Book found: " . print_r($book, true));
-            echo json_encode($book);
-        } else {
-            error_log("Book not found for ID: " . $book_id);
-            echo json_encode(["error" => "Book not found."]);
+        if (!$input || !isset($input['title']) || !isset($input['author']) || !isset($input['isbn'])) {
+            echo json_encode(["error" => "Missing required fields."]);
+            exit;
         }
+
+        $title = $input['title'];
+        $author = $input['author'];
+        $isbn = $input['isbn'];
+
+        $stmt = $pdo->prepare("INSERT INTO books (title, author, isbn) VALUES (:title, :author, :isbn)");
+        $stmt->execute([
+            'title' => $title,
+            'author' => $author,
+            'isbn' => $isbn
+        ]);
+
+        error_log("Book inserted successfully: $title by $author");
+        echo json_encode(["success" => true, "message" => "Book inserted successfully."]);
+    } else {
+        echo json_encode(["error" => "Invalid request method."]);
     }
 } catch (PDOException $e) {
     error_log("Database error: " . $e->getMessage());

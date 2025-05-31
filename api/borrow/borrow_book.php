@@ -3,9 +3,6 @@ if (!file_exists(__DIR__ . '/../config/database.php')) {
     die("Database config not found!");
 }
 require_once __DIR__ . '/../config/database.php';
-
-
-// Get JSON input
 $data = json_decode(file_get_contents("php://input"), true);
 
 // Validate input

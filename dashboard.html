@@ -177,31 +177,29 @@
                     <p class="text-xl font-semibold" id="current-date">April 25, 2025</p>
                 </div>
             </header>
+<div class="grid grid-cols-4 gap-6 mb-6">
+    <div class="card card-stats students p-6 rounded-lg shadow-lg text-white relative">
+        <div class="stat-icon">👥</div>
+        <h2 class="stat-label text-lg">Total Students</h2>
+        <p class="stat-value" id="total-students">0</p>
+    </div>
+    <div class="card card-stats books p-6 rounded-lg shadow-lg text-white relative">
+        <div class="stat-icon">📚</div>
+        <h2 class="stat-label text-lg">Total Books</h2>
+        <p class="stat-value" id="total-books">0</p>
+    </div>
+    <div class="card card-stats requests p-6 rounded-lg shadow-lg text-white relative">
+        <div class="stat-icon">🔔</div>
+        <h2 class="stat-label text-lg">Pending Requests</h2>
+        <p class="stat-value" id="pending-requests">0</p>
+    </div>
+    <div class="card card-stats overdue p-6 rounded-lg shadow-lg text-white relative">
+        <div class="stat-icon">⏰</div>
+        <h2 class="stat-label text-lg">Overdue Books</h2>
+        <p class="stat-value" id="overdue-books">0</p>
+    </div>
+</div>
 
-            <div class="grid grid-cols-4 gap-6 mb-6">
-                <div class="card card-stats students p-6 rounded-lg shadow-lg text-white relative">
-                    <div class="stat-icon">👥</div>
-                    <h2 class="stat-label text-lg">Total Students</h2>
-                    <p class="stat-value">320</p>
-                </div>
-                <div class="card card-stats books p-6 rounded-lg shadow-lg text-white relative">
-                    <div class="stat-icon">📚</div>
-                    <h2 class="stat-label text-lg">Total Books</h2>
-                    <p class="stat-value">1200</p>
-                </div>
-                <div class="card card-stats requests p-6 rounded-lg shadow-lg text-white relative">
-                    <div class="stat-icon">🔔</div>
-                    <h2 class="stat-label text-lg">Pending Requests</h2>
-                    <p class="stat-value">8</p>
-                </div>
-                <div class="card card-stats overdue p-6 rounded-lg shadow-lg text-white relative">
-                    <div class="stat-icon">⏰</div>
-                    <h2 class="stat-label text-lg">Overdue Books</h2>
-                    <p class="stat-value">5</p>
-                </div>
-            </div>
-
-     
             <div class="flex space-x-6">
         
                 <div class="flex-1">
@@ -251,32 +249,9 @@
                                         <th class="px-6 py-4 font-medium text-left">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-200 bg-white">
-                                    <tr class="table-row hover:bg-gray-50 transition duration-150">
-                                        <td class="px-6 py-4">Adrian Robles</td>
-                                        <td class="px-6 py-4">Data Structures</td>
-                                        <td class="px-6 py-4"><span class="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">Borrow</span></td>
-                                        <td class="px-6 py-4">
-                                            <a href="borrow-return.html" class="button button-go px-6 py-2 rounded-lg text-sm">Go</a>
-                                        </td>
-                                    </tr>
-                                    <tr class="table-row hover:bg-gray-50 transition duration-150">
-                                        <td class="px-6 py-4">Jerick Martin Francisco</td>
-                                        <td class="px-6 py-4">Web Development</td>
-                                        <td class="px-6 py-4"><span class="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Return</span></td>
-                                        <td class="px-6 py-4">
-                                            <a href="borrow-return.html" class="button button-go px-6 py-2 rounded-lg text-sm">Go</a>
-                                        </td>
-                                    </tr>
-                                    <tr class="table-row hover:bg-gray-50 transition duration-150">
-                                        <td class="px-6 py-4">Adrian Miravil</td>
-                                        <td class="px-6 py-4">Database Systems</td>
-                                        <td class="px-6 py-4"><span class="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">Borrow</span></td>
-                                        <td class="px-6 py-4">
-                                            <a href="borrow-return.html" class="button button-go px-6 py-2 rounded-lg text-sm">Go</a>
-                                        </td>
-                                    </tr>
-                                </tbody>
+                    
+                                   <tbody id="pending-requests-body" class="divide-y divide-gray-200 bg-white"></tbody>
+                           
                             </table>
                         </div>
                     </div>
@@ -476,5 +451,30 @@
        
         document.addEventListener('DOMContentLoaded', setupResponsiveCharts);
     </script>
+
+<script>
+fetch('dashboard.php')
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById('total-students').textContent = data.totalStudents;
+    document.getElementById('total-books').textContent = data.totalBooks;
+   document.querySelector('.requests .stat-value').textContent = data.pendingRequests;
+    document.getElementById('overdue-books').textContent = data.overdueBooks;
+
+    const pendingBody = document.getElementById('pending-requests-body');
+pendingBody.innerHTML = '';
+data.latestRequests.forEach(req => {
+  const row = `
+    <tr>
+      <td class="px-4 py-2">${req.name}</td>
+      <td class="px-4 py-2">${req.book_title}</td>
+      <td class="px-4 py-2">${req.request_type}</td>
+      <td class="px-4 py-2">${req.requested_at}</td>
+    </tr>
+  `;
+  pendingBody.innerHTML += row;
+    });
+  });
+</script>
 </body>
 </html>

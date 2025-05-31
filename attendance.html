@@ -1,106 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Logs</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="sidebar.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Attendance Logs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <link rel="stylesheet" href="sidebar.css">
+
+  <style>
+    .modal-bg {
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+  </style>
 </head>
 <body class="bg-gray-50 font-poppins overflow-x-hidden">
-    <div class="flex min-h-screen">
-        <div id="sidebar-container"></div>
-        <div class="main-content">
-            <header class="flex justify-between items-center mb-6">
-                <h1 class="text-3xl font-bold text-gray-800">Attendance Logs</h1>
-            </header>
-            <div class="flex justify-between items-center mb-4">
-                <div class="flex space-x-2">
-                    <input type="text" placeholder="Search by Student ID, Name, or Program" class="p-2 w-64 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">Search</button>
-                </div>
-                <div class="flex space-x-4">
-                    <select class="p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option>Sort by</option>
-                        <option>Type</option>
-                        <option>Student ID</option>
-                        <option>Name</option>
-                        <option>Program</option>
-                        <option>Time</option>
-                    </select>
+  <div class="flex min-h-screen">
+    <div id="sidebar-container"></div>
+    <div class="main-content flex-1 p-6">
+      <header class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Attendance Logs</h1>
+      </header>
 
-                </div>
-            </div>
-            <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
-                <table class="min-w-full text-sm text-left text-gray-500">
-                    <thead class="bg-gray-800 text-white">
-                        <tr>
-                            <th class="px-6 py-4 font-medium">Student ID</th>
-                            <th class="px-6 py-4 font-medium">Name</th>
-                            <th class="px-6 py-4 font-medium">Program</th>
-                            <th class="px-6 py-4 font-medium">Type</th>
-                            <th class="px-6 py-4 font-medium">Date</th>
-                            <th class="px-6 py-4 font-medium">Time</th>
-                            <th class="px-6 py-4 font-medium">Logs</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="px-6 py-4">12345</td>
-                            <td class="px-6 py-4">Adrian Miravil</td>
-                            <td class="px-6 py-4">Computer Science</td>
-                            <td class="px-6 py-4">
-                                <span class="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">Inside</span>
-                            </td>
-                            <td class="px-6 py-4">2025-04-25</td>
-                            <td class="px-6 py-4">08:30 AM</td>
-                            <td class="px-6 py-4">
-                                <div class="flex space-x-2">
-                                    <a href="borrow-attendance-history.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">View Logs</a>                                </div>
-                            </td>
-                        </tr>
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="px-6 py-4">67890</td>
-                            <td class="px-6 py-4">Kezia Barrameda</td>
-                            <td class="px-6 py-4">Biology</td>
-                            <td class="px-6 py-4">
-                                <span class="px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">Outside</span>
-                            </td>
-                            <td class="px-6 py-4">2025-04-25</td>
-                            <td class="px-6 py-4">09:15 AM</td>
-                            <td class="px-6 py-4">
-                                <div class="flex space-x-2">
-                                    <a href="borrow-attendance-history.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">View Logs</a>                                </div>
-                            </td>
-                        </tr>
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="px-6 py-4">11223</td>
-                            <td class="px-6 py-4">Adrian Robles</td>
-                            <td class="px-6 py-4">Mathematics</td>
-                            <td class="px-6 py-4">
-                                <span class="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">Inside</span>
-                            </td>
-                            <td class="px-6 py-4">2025-04-25</td>
-                            <td class="px-6 py-4">08:45 AM</td>
-                            <td class="px-6 py-4">
-                                <div class="flex space-x-2">
-                                    <a href="borrow-attendance-history.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">View Logs</a>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="flex justify-between items-center mt-6">
-                <div class="text-sm text-gray-600">Showing 1-10 of 100 records</div>
-                <div class="flex space-x-2">
-                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Previous</button>
-                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Next</button>
-                </div>
-            </div>
+      <div class="flex justify-between items-center mb-4">
+        <div class="flex space-x-2">
+          <input type="text" id="searchInput" class="p-2 w-64 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Search student...">
+          <button onclick="filterTable()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">Search</button>
         </div>
+        <div class="flex space-x-4 items-center">
+          <select class="p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option>Sort by</option>
+            <option>Type</option>
+            <option>Student ID</option>
+            <option>Name</option>
+            <option>Program</option>
+            <option>Time</option>
+          </select>
+
+          <!-- IN/OUT Selector -->
+          <select id="attendanceType" class="p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+            <option value="Inside">IN</option>
+            <option value="Outside">OUT</option>
+          </select>
+
+          <button id="openScanner" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300">Scan QR</button>
+        </div>
+      </div>
+
+      <!-- Attendance Table -->
+      <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
+        <table class="min-w-full text-sm text-left text-gray-500">
+          <thead class="bg-gray-800 text-white">
+            <tr>
+              <th class="px-6 py-4 font-medium">Student ID</th>
+              <th class="px-6 py-4 font-medium">Name</th>
+              <th class="px-6 py-4 font-medium">Program</th>
+              <th class="px-6 py-4 font-medium">Type</th>
+              <th class="px-6 py-4 font-medium">Date</th>
+              <th class="px-6 py-4 font-medium">Time</th>
+              <th class="px-6 py-4 font-medium">Logs</th>
+            </tr>
+          </thead>
+          <tbody id="attendanceTableBody">
+            <!-- Entries will be appended here -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex justify-between items-center mt-6">
+        <div class="text-sm text-gray-600">Showing 1-10 of 100 records</div>
+        <div class="flex space-x-2">
+          <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Previous</button>
+          <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Next</button>
+        </div>
+      </div>
     </div>
-    <script src="sidebar.js"></script>
+  </div>
+
+  <!-- QR Scanner Modal -->
+  <div id="qrModal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-bg">
+    <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold">Scan QR Code</h2>
+        <button id="closeScanner" class="text-gray-500 hover:text-red-500 text-xl">&times;</button>
+      </div>
+      <div id="reader" style="width: 100%;"></div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="sidebar.js"></script>
+  <script>
+    const modal = document.getElementById('qrModal');
+    const openBtn = document.getElementById('openScanner');
+    const closeBtn = document.getElementById('closeScanner');
+    const attendanceType = document.getElementById('attendanceType');
+    const tableBody = document.getElementById('attendanceTableBody');
+    const searchInput = document.getElementById('searchInput');
+    let qrScanner;
+
+    function fetchStudentById(studentId) {
+      fetch(`get_student.php?student_id=${encodeURIComponent(studentId)}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.data) {
+            const student = data.data;
+            const now = new Date();
+            const dateStr = now.toISOString().split('T')[0];
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const type = attendanceType.value;
+
+            const row = `
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-6 py-4">${student.student_id}</td>
+                <td class="px-6 py-4">${student.full_name}</td>
+                <td class="px-6 py-4">${student.program}</td>
+                <td class="px-6 py-4">
+                  <span class="px-3 py-1 text-xs font-medium rounded-full ${type === 'Inside' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}">
+                    ${type}
+                  </span>
+                </td>
+                <td class="px-6 py-4">${dateStr}</td>
+                <td class="px-6 py-4">${timeStr}</td>
+                <td class="px-6 py-4">
+                  <a href="borrow-attendance-history.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">View Logs</a>
+                </td>
+              </tr>
+            `;
+            tableBody.insertAdjacentHTML('afterbegin', row);
+            alert(`${student.full_name} logged as ${type}`);
+          } else {
+            alert("Student not found!");
+          }
+
+          qrScanner.stop();
+          modal.classList.add('hidden');
+        })
+        .catch(error => {
+          alert("Error: " + error);
+          qrScanner.stop();
+          modal.classList.add('hidden');
+        });
+    }
+
+    openBtn.addEventListener('click', () => {
+      modal.classList.remove('hidden');
+
+      qrScanner = new Html5Qrcode("reader");
+      qrScanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        qrCodeMessage => {
+          const studentId = qrCodeMessage.trim();
+          fetchStudentById(studentId);
+        },
+        errorMessage => {
+          // silent errors
+        }
+      );
+    });
+
+    closeBtn.addEventListener('click', () => {
+      if (qrScanner) {
+        qrScanner.stop().then(() => {
+          modal.classList.add('hidden');
+        });
+      } else {
+        modal.classList.add('hidden');
+      }
+    });
+
+    function filterTable() {
+      const query = searchInput.value.toLowerCase();
+      const rows = tableBody.getElementsByTagName("tr");
+      for (let row of rows) {
+        const cells = row.getElementsByTagName("td");
+        const match = Array.from(cells).some(td => td.textContent.toLowerCase().includes(query));
+        row.style.display = match ? "" : "none";
+      }
+    }
+
+    searchInput.addEventListener("input", filterTable);
+  </script>
 </body>
 </html>
