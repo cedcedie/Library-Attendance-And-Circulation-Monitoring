@@ -148,26 +148,29 @@
         return urlParams.get('book_id');
     }
 
-    function fetchBookData(bookId) {
-        fetch(`fetch_book_edit.php?book_id=${bookId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data && !data.error) {
-                document.getElementById('book-title').value = data.title;
-                document.getElementById('book-author').value = data.author;
-                document.getElementById('book-id').value = data.book_id;
-                isEditField.value = "true";
-                barcodeGenerated = true;
-                
-                document.getElementById('qrPreview').textContent = data.book_id;
-            } else {
-                console.error('Error fetching book:', data?.error || 'Unknown error');
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching book data:', error);
-        });
-    }
+   function fetchBookData(bookId) {
+    fetch(`fetch_books.php?book_id=${bookId}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.book) {
+            const book = data.book;
+            document.getElementById('book-title').value = book.title;
+            document.getElementById('book-author').value = book.author;
+            document.getElementById('book-id').value = book.book_id;
+            isEditField.value = "true";
+            barcodeGenerated = true;
+            document.getElementById('qrPreview').textContent = book.book_id;
+        } else {
+            alert('Book not found or error occurred.');
+            window.location.href = "books.html";
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching book data:', error);
+        alert('Failed to fetch book data.');
+        window.location.href = "books.html";
+    });
+}
     window.onload = function() {
         const bookId = getBookIdFromURL();
         if (bookId) {

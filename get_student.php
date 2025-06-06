@@ -10,7 +10,6 @@ try {
     $pdo = new PDO($dsn, $user, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Check if student_id is passed via GET
     if (!isset($_GET['student_id'])) {
         echo json_encode(["success" => false, "message" => "Missing student_id"]);
         exit;

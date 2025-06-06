@@ -38,7 +38,6 @@
             <option>Time</option>
           </select>
 
-          <!-- IN/OUT Selector -->
           <select id="attendanceType" class="p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500">
             <option value="Inside">IN</option>
             <option value="Outside">OUT</option>
@@ -98,90 +97,117 @@
     const attendanceType = document.getElementById('attendanceType');
     const tableBody = document.getElementById('attendanceTableBody');
     const searchInput = document.getElementById('searchInput');
+    const apiUrl = 'attendance_api.php'; 
     let qrScanner;
 
-    function fetchStudentById(studentId) {
-      fetch(`get_student.php?student_id=${encodeURIComponent(studentId)}`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.success && data.data) {
-            const student = data.data;
-            const now = new Date();
-            const dateStr = now.toISOString().split('T')[0];
-            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const type = attendanceType.value;
+function fetchStudentById(studentId) {
+  return fetch(`${apiUrl}?student_id=${encodeURIComponent(studentId)}`)
+    .then(response => response.json());
+}
 
-            const row = `
-              <tr class="border-b hover:bg-gray-50">
-                <td class="px-6 py-4">${student.student_id}</td>
-                <td class="px-6 py-4">${student.full_name}</td>
-                <td class="px-6 py-4">${student.program}</td>
-                <td class="px-6 py-4">
-                  <span class="px-3 py-1 text-xs font-medium rounded-full ${type === 'Inside' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}">
-                    ${type}
-                  </span>
-                </td>
-                <td class="px-6 py-4">${dateStr}</td>
-                <td class="px-6 py-4">${timeStr}</td>
-                <td class="px-6 py-4">
-                  <a href="borrow-attendance-history.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">View Logs</a>
-                </td>
-              </tr>
-            `;
-            tableBody.insertAdjacentHTML('afterbegin', row);
-            alert(`${student.full_name} logged as ${type}`);
-          } else {
-            alert("Student not found!");
-          }
+function logAttendance(studentId, type) {
+  return fetch(apiUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ student_id: studentId, type: type })
+  }).then(response => response.json());
+}
 
+openBtn.addEventListener('click', () => {
+  modal.classList.remove('hidden');
+
+  qrScanner = new Html5Qrcode("reader");
+  qrScanner.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: 250 },
+    async qrCodeMessage => {
+      const studentId = qrCodeMessage.trim();
+      try {
+        // 1. Fetch student info
+        const studentRes = await fetchStudentById(studentId);
+        if (!studentRes.success || !studentRes.data) {
+          alert("Student not found!");
           qrScanner.stop();
           modal.classList.add('hidden');
-        })
-        .catch(error => {
-          alert("Error: " + error);
-          qrScanner.stop();
-          modal.classList.add('hidden');
-        });
-    }
-
-    openBtn.addEventListener('click', () => {
-      modal.classList.remove('hidden');
-
-      qrScanner = new Html5Qrcode("reader");
-      qrScanner.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: 250 },
-        qrCodeMessage => {
-          const studentId = qrCodeMessage.trim();
-          fetchStudentById(studentId);
-        },
-        errorMessage => {
-          // silent errors
+          return;
         }
-      );
-    });
 
-    closeBtn.addEventListener('click', () => {
-      if (qrScanner) {
-        qrScanner.stop().then(() => {
+        // 2. Determine attendance type from select (map to 'entry' or 'exit')
+        const selectedType = attendanceType.value.toLowerCase() === 'inside' ? 'entry' : 'exit';
+
+        // 3. Log attendance via POST
+        const logRes = await logAttendance(studentId, selectedType);
+        if (!logRes.success) {
+          alert("Failed to log attendance: " + (logRes.error || 'Unknown error'));
+          qrScanner.stop();
           modal.classList.add('hidden');
-        });
-      } else {
+          return;
+        }
+
+        // 4. Prepare table row and display
+        const student = studentRes.data;
+        const now = new Date();
+        const dateStr = now.toISOString().split('T')[0];
+        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const displayType = selectedType === 'entry' ? 'Inside' : 'Outside';
+        const colorClass = selectedType === 'entry' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800';
+
+        const row = `
+          <tr class="border-b hover:bg-gray-50">
+            <td class="px-6 py-4">${student.student_id}</td>
+            <td class="px-6 py-4">${student.full_name}</td>
+            <td class="px-6 py-4">${student.program}</td>
+            <td class="px-6 py-4">
+              <span class="px-3 py-1 text-xs font-medium rounded-full ${colorClass}">
+                ${displayType}
+              </span>
+            </td>
+            <td class="px-6 py-4">${dateStr}</td>
+            <td class="px-6 py-4">${timeStr}</td>
+            <td class="px-6 py-4">
+              <a href="borrow-attendance-history.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">View Logs</a>
+            </td>
+          </tr>
+        `;
+        tableBody.insertAdjacentHTML('afterbegin', row);
+
+        alert(`${student.full_name} logged as ${displayType}`);
+
+        qrScanner.stop();
+        modal.classList.add('hidden');
+      } catch (error) {
+        alert("Error: " + error.message || error);
+        qrScanner.stop();
         modal.classList.add('hidden');
       }
-    });
-
-    function filterTable() {
-      const query = searchInput.value.toLowerCase();
-      const rows = tableBody.getElementsByTagName("tr");
-      for (let row of rows) {
-        const cells = row.getElementsByTagName("td");
-        const match = Array.from(cells).some(td => td.textContent.toLowerCase().includes(query));
-        row.style.display = match ? "" : "none";
-      }
+    },
+    errorMessage => {
+      // Optionally handle scan errors here silently
     }
+  );
+});
 
-    searchInput.addEventListener("input", filterTable);
+closeBtn.addEventListener('click', () => {
+  if (qrScanner) {
+    qrScanner.stop().then(() => {
+      modal.classList.add('hidden');
+    });
+  } else {
+    modal.classList.add('hidden');
+  }
+});
+
+function filterTable() {
+  const query = searchInput.value.toLowerCase();
+  const rows = tableBody.getElementsByTagName("tr");
+  for (let row of rows) {
+    const cells = row.getElementsByTagName("td");
+    const match = Array.from(cells).some(td => td.textContent.toLowerCase().includes(query));
+    row.style.display = match ? "" : "none";
+  }
+}
+
+searchInput.addEventListener("input", filterTable);
   </script>
 </body>
 </html>
