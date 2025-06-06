@@ -1,37 +1,72 @@
 <?php
-require_once(__DIR__ . "/../config/database.php");
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
+ini_set('log_errors', 1); 
+error_reporting(E_ALL);
 
 header('Content-Type: application/json');
 
-$rawData = file_get_contents("php://input");
-$data = json_decode($rawData, true);
+$host = "localhost";
+$port = "5432";
+$dbname = "library_system";
+$user = "postgres";
+$password = "librarySystem";
 
-if (!isset($data['username']) || !isset($data['password'])) {
-    echo json_encode(['status' => 'error', 'message' => 'Missing username or password']);
+try {
+    $pdo = new PDO("pgsql:host=$host;port=$port;dbname=$dbname", $user, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    http_response_code(500); 
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Database connection failed'
+    ]);
     exit;
 }
 
-$username = $data['username'];
-$password = $data['password'];
+// Get JSON input
+$input = json_decode(file_get_contents('php://input'), true);
 
-if (!function_exists('pg_query_params')) {
-    echo json_encode(['status' => 'error', 'message' => 'PostgreSQL extension is not enabled']);
+// Validate input
+if (!isset($input['username']) || !isset($input['password'])) {
+    http_response_code(400); 
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Missing username or password'
+    ]);
     exit;
 }
 
-$sql = "SELECT * FROM students WHERE username = $1";
-$result = pg_query_params($conn, $sql, [$username]);
+$username = $input['username'];
+$password = $input['password'];
 
-if ($result && pg_num_rows($result) == 1) {
-    $student = pg_fetch_assoc($result);
-    
-    if (password_verify($password, $student['password_hash'])) {
-        unset($student['password_hash']); 
-        echo json_encode(['status' => 'success', 'student' => $student]);
+// Query DB
+try {
+    $stmt = $pdo->prepare("SELECT * FROM students WHERE username = :username LIMIT 1");
+    $stmt->execute(['username' => $username]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($user && password_verify($password, $user['password_hash'])) {
+        echo json_encode([
+            'status' => 'success',
+            'message' => 'Login successful',
+            'student' => [
+                'id' => $user['id'],
+                'name' => $user['name'],
+                'username' => $user['username']
+            ]
+        ]);
     } else {
-        echo json_encode(['status' => 'error', 'message' => 'Invalid password']);
+        http_response_code(401); // Unauthorized
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Invalid username or password'
+        ]);
     }
-} else {
-    echo json_encode(['status' => 'error', 'message' => 'User not found']);
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Database query error'
+    ]);
 }
-?>
