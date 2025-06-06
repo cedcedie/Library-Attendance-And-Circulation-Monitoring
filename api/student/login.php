@@ -48,16 +48,14 @@ try {
 
     if ($user && password_verify($password, $user['password_hash'])) {
         echo json_encode([
-            'status' => 'success',
-            'message' => 'Login successful',
-            'student' => [
-                'id' => $user['id'],
-                'name' => $user['name'],
-                'username' => $user['username']
-            ]
-        ]);
+    'status' => 'success',
+    'message' => 'Login successful',
+    'student_id' => $user['id'],
+    'name' => $user['name'],
+    'username' => $user['username']
+]);
     } else {
-        http_response_code(401); // Unauthorized
+        http_response_code(401); 
         echo json_encode([
             'status' => 'error',
             'message' => 'Invalid username or password'

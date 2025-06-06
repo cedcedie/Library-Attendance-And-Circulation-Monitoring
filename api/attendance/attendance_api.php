@@ -10,7 +10,6 @@ try {
     $method = $_SERVER['REQUEST_METHOD'];
 
     if ($method === 'GET') {
-        // Return student info only if ?student_id= provided
         $student_id = $_GET['student_id'] ?? null;
 
         if ($student_id) {
@@ -54,20 +53,35 @@ try {
         }
 
         if ($type === 'entry') {
-            // Insert new entry log
+
+            $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM attendance_logs WHERE student_id = ? AND date = ? AND time_out IS NULL");
+            $checkStmt->execute([$student_id, $date]);
+            $count = $checkStmt->fetchColumn();
+
+            if ($count > 0) {
+                throw new Exception("You already have an active entry without exit for today");
+            }
+
             $stmt = $pdo->prepare("INSERT INTO attendance_logs (student_id, full_name, program, type, date, time_in)
                                    VALUES (?, ?, ?, 'entry', ?, ?)");
             $stmt->execute([$student['student_id'], $student['full_name'], $student['program'], $date, $time]);
         } else {
-            // Update exit time for the latest entry without time_out
-            $stmt = $pdo->prepare("UPDATE attendance_logs SET time_out = ?
-                                   WHERE student_id = ? AND date = ? AND time_out IS NULL
-                                   ORDER BY time_in DESC LIMIT 1");
-            $stmt->execute([$time, $student_id, $date]);
+            // UPDATE with subquery to fix ORDER BY LIMIT problem
+            // Get the attendance_log id for the latest entry today with time_out IS NULL
+            $idStmt = $pdo->prepare("
+                SELECT id FROM attendance_logs 
+                WHERE student_id = ? AND date = ? AND time_out IS NULL 
+                ORDER BY time_in DESC LIMIT 1
+            ");
+            $idStmt->execute([$student_id, $date]);
+            $logId = $idStmt->fetchColumn();
 
-            if ($stmt->rowCount() === 0) {
+            if (!$logId) {
                 throw new Exception("No active entry found for exit");
             }
+
+            $updateStmt = $pdo->prepare("UPDATE attendance_logs SET time_out = ? WHERE id = ?");
+            $updateStmt->execute([$time, $logId]);
         }
 
         echo json_encode([
