@@ -42,8 +42,6 @@ try {
 
         $date = date('Y-m-d');
         $time = date('H:i:s');
-
-        // Fetch student info
         $stmt = $pdo->prepare("SELECT student_id, full_name, program FROM students WHERE student_id = ?");
         $stmt->execute([$student_id]);
         $student = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -66,8 +64,6 @@ try {
                                    VALUES (?, ?, ?, 'entry', ?, ?)");
             $stmt->execute([$student['student_id'], $student['full_name'], $student['program'], $date, $time]);
         } else {
-            // UPDATE with subquery to fix ORDER BY LIMIT problem
-            // Get the attendance_log id for the latest entry today with time_out IS NULL
             $idStmt = $pdo->prepare("
                 SELECT id FROM attendance_logs 
                 WHERE student_id = ? AND date = ? AND time_out IS NULL 
