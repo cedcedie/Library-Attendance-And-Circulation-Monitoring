@@ -3,579 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STI Library - Admin Access</title>
+    <title>STI Library Admin Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3a8a 0%, #dc2626 50%, #1e3a8a 100%);
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #004A8D 0%, #FFC107 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            overflow: hidden;
         }
-
-        .background-grid {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            opacity: 0.1;
-            background-image: 
-                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 30px 30px;
-            animation: gridMove 20s linear infinite;
-        }
-
-        @keyframes gridMove {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(30px, 30px); }
-        }
-
-        .security-particles {
-            position: absolute;
+        .login-card {
+            background: #fff;
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            padding: 2.5rem 2rem 2rem 2rem;
+            max-width: 370px;
             width: 100%;
-            height: 100%;
-            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            animation: float 8s ease-in-out infinite;
-        }
-
-        .particle:nth-child(1) { left: 10%; animation-delay: 0s; }
-        .particle:nth-child(2) { left: 20%; animation-delay: 1s; }
-        .particle:nth-child(3) { left: 30%; animation-delay: 2s; }
-        .particle:nth-child(4) { left: 40%; animation-delay: 3s; }
-        .particle:nth-child(5) { left: 50%; animation-delay: 4s; }
-        .particle:nth-child(6) { left: 60%; animation-delay: 5s; }
-        .particle:nth-child(7) { left: 70%; animation-delay: 6s; }
-        .particle:nth-child(8) { left: 80%; animation-delay: 7s; }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            10%, 90% { opacity: 1; }
-            50% { transform: translateY(0vh) rotate(180deg); }
-        }
-
-        .admin-container {
-            background: rgba(255, 255, 255, 0.97);
-            backdrop-filter: blur(25px);
-            border-radius: 24px;
-            box-shadow: 
-                0 25px 80px rgba(0, 0, 0, 0.4),
-                0 0 0 1px rgba(255, 255, 255, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.6);
-            padding: 50px 45px;
-            width: 100%;
-            max-width: 450px;
-            position: relative;
-            z-index: 10;
-            animation: slideInScale 1s ease-out;
-        }
-
-        @keyframes slideInScale {
-            from {
-                opacity: 0;
-                transform: translateY(80px) scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .security-badge {
-            position: absolute;
-            top: -15px;
-            right: -15px;
+        .sti-logo {
             width: 60px;
             height: 60px;
-            background: linear-gradient(135deg, #dc2626, #b91c1c);
-            border-radius: 50%;
+            background: #004A8D;
+            border-radius: 1rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 24px;
-            border: 4px solid white;
-            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
-            animation: securityPulse 3s ease-in-out infinite;
+            color: #FFC107;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 16px rgba(0,74,141,0.10);
         }
-
-        @keyframes securityPulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4); }
-            50% { transform: scale(1.1); box-shadow: 0 12px 35px rgba(220, 38, 38, 0.6); }
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .logo-container {
-            position: relative;
-            margin-bottom: 25px;
-        }
-
-        .logo {
-            width: 90px;
-            height: 90px;
-            background: linear-gradient(135deg, #dc2626, #1e3a8a);
-            border-radius: 24px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 32px;
-            font-weight: bold;
-            box-shadow: 
-                0 15px 40px rgba(220, 38, 38, 0.4),
-                0 5px 15px rgba(30, 58, 138, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .logo::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-            animation: logoShine 4s ease-in-out infinite;
-        }
-
-        @keyframes logoShine {
-            0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(180deg); }
-        }
-
-        .title {
-            color: #1f2937;
-            font-size: 32px;
-            font-weight: 800;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #dc2626, #1e3a8a);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #004A8D;
+            margin-bottom: 0.5rem;
             letter-spacing: -0.5px;
         }
-
-        .subtitle {
-            color: #dc2626;
-            font-size: 16px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-        }
-
-        .description {
-            color: #6b7280;
-            font-size: 14px;
+        .login-subtitle {
+            color: #FFC107;
+            font-size: 1rem;
             font-weight: 500;
+            margin-bottom: 2rem;
         }
-
-        .form-group {
-            margin-bottom: 25px;
-            position: relative;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 10px;
-            color: #374151;
-            font-weight: 700;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .input-wrapper {
-            position: relative;
-        }
-
-        .form-group input {
+        .login-form input {
             width: 100%;
-            padding: 18px 24px 18px 60px;
-            border: 2px solid #e5e7eb;
-            border-radius: 16px;
-            font-size: 16px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.9);
+            padding: 0.85rem 1rem;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            margin-bottom: 1.2rem;
+            background: #f9fafb;
+            transition: border 0.2s;
+        }
+        .login-form input:focus {
+            border-color: #004A8D;
             outline: none;
+            background: #fff;
         }
-
-        .form-group input:focus {
-            border-color: #dc2626;
-            background: white;
-            box-shadow: 
-                0 0 0 4px rgba(220, 38, 38, 0.1),
-                0 8px 25px rgba(0, 0, 0, 0.15);
-            transform: translateY(-2px);
-        }
-
-        .form-group input::placeholder {
-            color: #9ca3af;
-            font-weight: 400;
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 20px;
-            color: #9ca3af;
-            transition: all 0.3s ease;
-        }
-
-        .form-group input:focus + .input-icon {
-            color: #dc2626;
-            transform: translateY(-50%) scale(1.1);
-        }
-
-        .admin-btn {
+        .login-btn {
             width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #dc2626, #b91c1c);
-            color: white;
-            border: none;
-            border-radius: 16px;
-            font-size: 16px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 25px;
-        }
-
-        .admin-btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        .admin-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.6s ease;
-        }
-
-        .admin-btn:hover:not(:disabled)::before {
-            left: 100%;
-        }
-
-        .admin-btn:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(220, 38, 38, 0.5);
-        }
-
-        .admin-btn:active:not(:disabled) {
-            transform: translateY(-1px);
-        }
-
-        .status-message {
-            padding: 16px 20px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            font-size: 14px;
+            background: linear-gradient(90deg, #004A8D 60%, #FFC107 100%);
+            color: #fff;
             font-weight: 600;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 0.75rem;
+            padding: 0.85rem 0;
+            margin-top: 0.5rem;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(0,74,141,0.08);
+        }
+        .login-btn:hover {
+            background: linear-gradient(90deg, #003366 60%, #e0a800 100%);
+            box-shadow: 0 4px 16px rgba(0,74,141,0.13);
+        }
+        .login-error {
+            color: #d32f2f;
+            background: #fff3f3;
+            border-radius: 0.5rem;
+            padding: 0.7rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.98rem;
             text-align: center;
             display: none;
-            animation: statusSlide 0.5s ease-out;
         }
-
-        @keyframes statusSlide {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .status-message.success {
-            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-            color: #166534;
-            border: 2px solid #86efac;
-        }
-
-        .status-message.error {
-            background: linear-gradient(135deg, #fef2f2, #fecaca);
-            color: #dc2626;
-            border: 2px solid #f87171;
-        }
-
-        .status-message.loading {
-            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-            color: #1e40af;
-            border: 2px solid #60a5fa;
-        }
-
-        .security-info {
-            background: linear-gradient(135deg, rgba(30, 58, 138, 0.1), rgba(220, 38, 38, 0.1));
-            border: 2px solid rgba(30, 58, 138, 0.2);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .security-info h3 {
-            color: #1e3a8a;
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .security-info p {
-            color: #6b7280;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .footer {
-            text-align: center;
-            color: #6b7280;
-            font-size: 13px;
-            border-top: 1px solid #e5e7eb;
-            padding-top: 20px;
-        }
-
-        .footer p:first-child {
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 5px;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 0.8s ease-in-out infinite;
-            margin-right: 8px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
         @media (max-width: 480px) {
-            .admin-container {
-                margin: 20px;
-                padding: 40px 30px;
-            }
-            
-            .title {
-                font-size: 28px;
-            }
-            
-            .logo {
-                width: 80px;
-                height: 80px;
-                font-size: 28px;
-            }
+            .login-card { padding: 1.5rem 0.5rem; }
         }
     </style>
 </head>
 <body>
-    <div class="background-grid"></div>
-    <div class="security-particles">
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-    </div>
-    
-    <div class="admin-container">
-        <div class="security-badge">🔐</div>
-        
-        <div class="header">
-            <div class="logo-container">
-                <div class="logo">STI</div>
-            </div>
-            <h1 class="title">Admin Portal</h1>
-            <p class="subtitle">Authorized Access Only</p>
-            <p class="description">Library Management System</p>
-        </div>
-
-        <div class="security-info">
-            <h3>🛡️ Secure Admin Access</h3>
-            <p>This portal is restricted to authorized administrators only. All login attempts are monitored and logged for security purposes.</p>
-        </div>
-
-        <div id="statusMessage" class="status-message"></div>
-
-        <form id="adminLoginForm">
-            <div class="form-group">
-                <label for="username">Administrator Username</label>
-                <div class="input-wrapper">
-                    <input type="text" id="username" name="username" placeholder="Enter admin username" required autocomplete="username">
-                    <div class="input-icon">👤</div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="password">Administrator Password</label>
-                <div class="input-wrapper">
-                    <input type="password" id="password" name="password" placeholder="Enter admin password" required autocomplete="current-password">
-                    <div class="input-icon">🔑</div>
-                </div>
-            </div>
-
-            <button type="submit" class="admin-btn" id="loginButton">
-                Access Admin Panel
-            </button>
+    <main class="login-card">
+        <div class="sti-logo">STI</div>
+        <div class="login-title">Admin Login</div>
+        <div class="login-subtitle">Library Management</div>
+        <div id="loginError" class="login-error"></div>
+        <form id="loginForm" class="login-form" autocomplete="off">
+            <input type="text" id="username" name="username" placeholder="Username" required autofocus class="focus:ring-2 focus:ring-blue-500 transition-all duration-200">
+            <input type="password" id="password" name="password" placeholder="Password" required class="focus:ring-2 focus:ring-blue-500 transition-all duration-200">
+            <button type="submit" class="login-btn flex items-center gap-2"><span>🔐</span> Sign In</button>
         </form>
-
-        <div class="footer">
-            <p>STI College Library Management System</p>
-            <p>© 2025 STI Education Services Group, Inc. | Admin Portal v2.0</p>
-        </div>
-    </div>
-
+    </main>
     <script>
-        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const form = this;
-            const statusMessage = document.getElementById('statusMessage');
-            const loginButton = document.getElementById('loginButton');
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
-            
-            // Basic validation
-            if (!username || !password) {
-                showStatus('error', 'Please enter both username and password.');
-                return;
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const errorDiv = document.getElementById('loginError');
+        errorDiv.style.display = 'none';
+        fetch('logins.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = 'dashboard.html';
+            } else {
+                errorDiv.textContent = data.message || 'Login failed.';
+                errorDiv.style.display = 'block';
             }
-            
-            // Show loading state
-            loginButton.disabled = true;
-            loginButton.innerHTML = '<span class="loading-spinner"></span>Authenticating...';
-            showStatus('loading', 'Verifying credentials with secure server...');
-            
-            // Create JSON data object
-            const loginData = {
-                username: username,
-                password: password
-            };
-            
-            // Send JSON request to logins.php
-            fetch('logins.php', {
-                method: 'POST',
-                body: JSON.stringify(loginData),
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(result => {
-                if (result.success) {
-                    showStatus('success', `Welcome, ${result.username}! Redirecting to admin panel...`);
-                    
-                    // Store admin info if needed (optional)
-                    sessionStorage.setItem('admin_id', result.admin_id);
-                    sessionStorage.setItem('admin_username', result.username);
-                    
-                    // Redirect after successful login
-                    setTimeout(() => {
-                        window.location.href = 'admin_dashboard.php';
-                    }, 1500);
-                } else {
-                    showStatus('error', result.message || 'Invalid credentials. Access denied.');
-                }
-            })
-            .catch(error => {
-                console.error('Login error:', error);
-                showStatus('error', 'Connection error. Please check your network and try again.');
-            })
-            .finally(() => {
-                // Reset button state
-                loginButton.disabled = false;
-                loginButton.innerHTML = 'Access Admin Panel';
-            });
+        })
+        .catch(() => {
+            errorDiv.textContent = 'Network error. Please try again.';
+            errorDiv.style.display = 'block';
         });
-        
-        function showStatus(type, message) {
-            const statusMessage = document.getElementById('statusMessage');
-            statusMessage.className = `status-message ${type}`;
-            statusMessage.textContent = message;
-            statusMessage.style.display = 'block';
-            
-            // Auto-hide after 5 seconds for non-loading messages
-            if (type !== 'loading') {
-                setTimeout(() => {
-                    statusMessage.style.display = 'none';
-                }, 5000);
-            }
-        }
-        
-        // Add some interactive effects
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.style.transform = 'scale(1.02)';
-            });
-            
-            input.addEventListener('blur', function() {
-                this.parentElement.style.transform = 'scale(1)';
-            });
-        });
-        
-        // Security feature: Clear form on page visibility change (when user switches tabs)
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden) {
-                // Optional: Clear sensitive data when page becomes hidden
-                // Uncomment the lines below if you want this security feature
-                // document.getElementById('password').value = '';
-            }
-        });
+    });
     </script>
 </body>
 </html>

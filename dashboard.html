@@ -142,10 +142,10 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 font-poppins overflow-x-hidden">
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 font-poppins overflow-x-hidden">
     <div class="flex min-h-screen">
         <div id="sidebar-container"></div>
-        <div class="main-content flex-1 p-6 space-y-6">
+        <main class="main-content flex-1 p-6 space-y-6">
             <header class="main-header flex justify-between items-center">
                 <div>
                     <h1 class="text-3xl font-bold">STI Library Dashboard</h1>
@@ -236,7 +236,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
     <script src="sidebar.js"></script>
@@ -432,28 +432,92 @@
     </script>
 
 <script>
+// Fetch stat cards
 fetch('dashboard.php')
   .then(res => res.json())
   .then(data => {
     document.getElementById('total-students').textContent = data.totalStudents;
     document.getElementById('total-books').textContent = data.totalBooks;
-   document.querySelector('.requests .stat-value').textContent = data.pendingRequests;
+    document.querySelector('.requests .stat-value').textContent = data.pendingRequests;
     document.getElementById('overdue-books').textContent = data.overdueBooks;
-
     const pendingBody = document.getElementById('pending-requests-body');
-pendingBody.innerHTML = '';
-data.latestRequests.forEach(req => {
-  const row = `
-    <tr>
-      <td class="px-4 py-2">${req.name}</td>
-      <td class="px-4 py-2">${req.book_title}</td>
-      <td class="px-4 py-2">${req.request_type}</td>
-      <td class="px-4 py-2">${req.requested_at}</td>
-    </tr>
-  `;
-  pendingBody.innerHTML += row;
+    pendingBody.innerHTML = '';
+    data.latestRequests.forEach(req => {
+      const row = `
+        <tr>
+          <td class="px-4 py-2">${req.name}</td>
+          <td class="px-4 py-2">${req.book_title}</td>
+          <td class="px-4 py-2">${req.request_type}</td>
+          <td class="px-4 py-2">${req.requested_at}</td>
+        </tr>
+      `;
+      pendingBody.innerHTML += row;
     });
   });
+// Fetch charts data
+fetch('fetch_reports_data.php')
+  .then(res => res.json())
+  .then(data => {
+    // Student Activity (use attendanceTrend for now)
+    const activityCtx = document.getElementById('student-activity-chart').getContext('2d');
+    new Chart(activityCtx, {
+      type: 'line',
+      data: {
+        labels: ['8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM'],
+        datasets: [{
+          label: 'Students Visiting',
+          data: data.attendanceTrend.concat(Array(12 - data.attendanceTrend.length).fill(0)),
+          borderColor: '#0034a5',
+          backgroundColor: 'rgba(0, 52, 165, 0.1)',
+          tension: 0.4,
+          fill: true,
+          pointBackgroundColor: '#ffc600',
+          pointBorderColor: '#0034a5',
+          pointRadius: 4,
+          pointHoverRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: 'rgba(156, 163, 175, 0.1)' }, stepSize: 10 } },
+        animation: { duration: 1000, easing: 'easeOutQuart' }
+      }
+    });
+    // Monthly Borrow Statistics
+    const borrowCtx = document.getElementById('borrow-stats-chart').getContext('2d');
+    new Chart(borrowCtx, {
+      type: 'bar',
+      data: {
+        labels: getLastMonths(5),
+        datasets: [{
+          label: 'Books Borrowed',
+          data: data.borrowsMonthly,
+          backgroundColor: ['#0034a5', '#3e68b2', '#0034a5', '#3e68b2', '#0034a5'],
+          borderColor: 'transparent',
+          borderRadius: 8,
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: 'rgba(156, 163, 175, 0.1)' }, stepSize: 50 } },
+        animation: { duration: 1000, easing: 'easeOutQuart' }
+      }
+    });
+  });
+function getLastMonths(n) {
+  const arr = [];
+  const now = new Date();
+  for (let i = n-1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    arr.push(d.toLocaleString('default', { month: 'short' }));
+  }
+  return arr;
+}
 </script>
 </body>
 </html>

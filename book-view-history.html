@@ -26,15 +26,15 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 font-poppins overflow-x-hidden">
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 font-poppins overflow-x-hidden">
     <div class="flex min-h-screen">
         <div id="sidebar-container"></div>
-        <div class="main-content flex-1 p-6">
+        <main class="main-content flex-1 p-6">
             <header class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800">Book Borrow History</h1>
-                <a href="books.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">Back to Book List</a>
+                <a href="books.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2">⬅️ Back to Book List</a>
             </header>
-            <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
+            <section class="overflow-x-auto bg-white shadow-lg rounded-lg">
                 <table class="min-w-full text-sm text-left text-gray-500">
                     <thead class="bg-gray-800 text-white">
                         <tr>
@@ -51,15 +51,15 @@
                         <tr><td colspan="7" class="text-center px-6 py-4 text-gray-600">Loading...</td></tr>
                     </tbody>
                 </table>
-                <div class="flex justify-between items-center mt-4">
+                <nav class="flex justify-between items-center mt-4">
                     <div id="pagination-info" class="text-sm text-gray-600">Showing 0-0 of 0 records</div>
                     <div class="flex space-x-2">
-                        <button id="prevPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Previous</button>
-                        <button id="nextPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Next</button>
+                        <button id="prevPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200">Previous</button>
+                        <button id="nextPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200">Next</button>
                     </div>
-                </div>
-            </div>
-        </div>
+                </nav>
+            </section>
+        </main>
     </div>
     <script src="sidebar.js"></script>
     <script>

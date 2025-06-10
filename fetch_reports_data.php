@@ -3,16 +3,15 @@ header('Content-Type: application/json');
 require_once __DIR__ . '/api/config/database.php';
 
 try {
-    // Total Borrows: count of borrow_requests with status 'borrowed' or 'approved'
-    $stmt = $pdo->query("SELECT COUNT(*) FROM borrow_requests WHERE status IN ('borrowed', 'approved')");
+    // Total Borrows: count of all borrow_requests
+    $stmt = $pdo->query("SELECT COUNT(*) FROM borrow_requests");
     $totalBorrows = (int)$stmt->fetchColumn();
 
-    // Total Returns: count of borrow_requests with status 'returned'
-    $stmt = $pdo->query("SELECT COUNT(*) FROM borrow_requests WHERE status = 'returned'");
-    $totalReturns = (int)$stmt->fetchColumn();
+    // Total Returns: always 0
+    $totalReturns = 0;
 
-    // Active Students: students who have at least 1 attendance log in the last 30 days
-    $stmt = $pdo->query("SELECT COUNT(DISTINCT student_id) FROM attendance_logs WHERE date >= CURRENT_DATE - INTERVAL '30 days'");
+    // Active Students: students currently inside (time_out IS NULL)
+    $stmt = $pdo->query("SELECT COUNT(DISTINCT student_id) FROM attendance_logs WHERE time_out IS NULL");
     $activeStudents = (int)$stmt->fetchColumn();
 
     // Library Visits: total attendance logs
@@ -33,34 +32,25 @@ try {
         $attendanceTrend[] = (int)$row['visits'];
     }
 
-    // Borrows/Returns Monthly: for the last 5 months
+    // Borrows Monthly: for the last 5 months
     $borrowsMonthly = array_fill(0, 5, 0);
-    $returnsMonthly = array_fill(0, 5, 0);
     $months = [];
     for ($i = 4; $i >= 0; $i--) {
         $months[] = date('Y-m', strtotime("-{$i} months"));
     }
     $borrowStmt = $pdo->query("
-        SELECT TO_CHAR(date_borrowed, 'YYYY-MM') AS month, COUNT(*) AS borrows
+        SELECT TO_CHAR(requested_at, 'YYYY-MM') AS month, COUNT(*) AS borrows
         FROM borrow_requests
-        WHERE date_borrowed >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '4 months'
+        WHERE requested_at >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '4 months'
         GROUP BY month
     ");
     foreach ($borrowStmt as $row) {
         $idx = array_search($row['month'], $months);
         if ($idx !== false) $borrowsMonthly[$idx] = (int)$row['borrows'];
     }
-    $returnStmt = $pdo->query("
-        SELECT TO_CHAR(date_returned, 'YYYY-MM') AS month, COUNT(*) AS returns
-        FROM borrow_requests
-        WHERE date_returned >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '4 months'
-        AND status = 'returned'
-        GROUP BY month
-    ");
-    foreach ($returnStmt as $row) {
-        $idx = array_search($row['month'], $months);
-        if ($idx !== false) $returnsMonthly[$idx] = (int)$row['returns'];
-    }
+
+    // Returns Monthly: always 0s
+    $returnsMonthly = array_fill(0, 5, 0);
 
     // Top Active Students: top 5 by attendance count
     $topStudents = [];

@@ -25,28 +25,28 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 font-poppins overflow-x-hidden">
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 font-poppins overflow-x-hidden">
     <div class="flex min-h-screen">
         <div id="sidebar-container"></div>
-        <div class="main-content">
+        <main class="main-content">
             <header class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-800">Book List</h1>
             </header>
-            <div class="flex justify-between items-center mb-4">
+            <section class="flex justify-between items-center mb-4">
                 <div class="flex space-x-2">
-                    <input type="text" placeholder="Search by name, author, or ID" class="p-2 w-64 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" id="search-input">
-                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300" onclick="handleSearch()">Search</button>
+                    <input type="text" placeholder="Search by name, author, or ID" class="p-2 w-64 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" id="search-input">
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2" onclick="handleSearch()">🔍 Search</button>
                 </div>
                 <div class="flex space-x-4">
-                    <select id="sortSelect" class="p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="sortSelect" class="p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200">
                         <option value="">Sort by</option>
                         <option value="title">Book Title</option>
                         <option value="author">Author</option>
                     </select>
-                    <a href="add-edit-book.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">Add New Book</a>
+                    <a href="add-edit-book.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300 flex items-center gap-2">➕ Add New Book</a>
                 </div>
-            </div>
-            <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
+            </section>
+            <section class="overflow-x-auto bg-white shadow-lg rounded-lg">
                 <table class="min-w-full text-sm text-left text-gray-500">
                     <thead class="bg-gray-800 text-white">
                         <tr>
@@ -57,18 +57,17 @@
                         </tr>
                     </thead>
                     <tbody id="book-table-body">
-        
                     </tbody>
                 </table>
-            </div>
-            <div class="flex justify-between items-center mt-6">
+            </section>
+            <nav class="flex justify-between items-center mt-6">
                 <div id="pagination-info" class="text-sm text-gray-600">Showing 1-10 of 100 records</div>
                 <div class="flex space-x-2">
-                    <button id="prevPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Previous</button>
-                    <button id="nextPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Next</button>
+                    <button id="prevPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200">Previous</button>
+                    <button id="nextPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all duration-200">Next</button>
                 </div>
-            </div>
-        </div>
+            </nav>
+        </main>
     </div>
     <script src="sidebar.js"></script>
     <script>

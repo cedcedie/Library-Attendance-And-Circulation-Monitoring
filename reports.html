@@ -31,27 +31,21 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 font-poppins overflow-x-hidden">
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 font-poppins overflow-x-hidden">
     <div class="flex min-h-screen">
         <div id="sidebar-container"></div>
         
-        <div class="main-content flex-1 p-8">
+        <main class="main-content flex-1 p-8">
             <header class="flex justify-between items-center mb-8">
                 <div class="hover-scale">
                     <h1 class="text-2xl font-bold text-[#004A8D]">Library Reports</h1>
                 </div>
                 <div class="flex space-x-4">
-                    <button class="bg-[#004A8D] text-white px-4 py-2 rounded-lg hover:bg-[#003366] transition-all duration-300 flex items-center hover-scale">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        Export PDF
+                    <button class="bg-[#004A8D] text-white px-4 py-2 rounded-lg hover:bg-[#003366] transition-all duration-300 flex items-center gap-2">
+                        <span>📄</span> Export PDF
                     </button>
-                    <button class="bg-[#FFC107] text-gray-800 px-4 py-2 rounded-lg hover:bg-[#e0a800] transition-all duration-300 flex items-center hover-scale">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        Export Excel
+                    <button class="bg-[#FFC107] text-gray-800 px-4 py-2 rounded-lg hover:bg-[#e0a800] transition-all duration-300 flex items-center gap-2">
+                        <span>📊</span> Export Excel
                     </button>
                 </div>
             </header>
@@ -76,7 +70,7 @@
                     <div class="flex justify-between items-center">
                         <div>
                             <p class="text-xs text-gray-500 mb-1">Total Borrows</p>
-                            <p class="text-2xl font-bold text-[#004A8D]">2,345</p>
+                            <p class="text-2xl font-bold text-[#004A8D]" id="stat-total-borrows">0</p>
                         </div>
                         <div class="bg-[#004A8D]/10 p-3 rounded-full">
                             <svg class="w-6 h-6 text-[#004A8D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,7 +85,7 @@
                     <div class="flex justify-between items-center">
                         <div>
                             <p class="text-xs text-gray-500 mb-1">Total Returns</p>
-                            <p class="text-2xl font-bold text-[#FFC107]">2,102</p>
+                            <p class="text-2xl font-bold text-[#FFC107]" id="stat-total-returns">0</p>
                         </div>
                         <div class="bg-[#FFC107]/10 p-3 rounded-full">
                             <svg class="w-6 h-6 text-[#FFC107]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,8 +98,8 @@
                 <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-[#FF6B00] card-hover">
                     <div class="flex justify-between items-center">
                         <div>
-                            <p class="text-xs text-gray-500 mb-1">Active Students</p>
-                            <p class="text-2xl font-bold text-[#FF6B00]">1,234</p>
+                            <p class="text-xs text-gray-500 mb-1">Active Students (Currently Inside)</p>
+                            <p class="text-2xl font-bold text-[#FF6B00]" id="stat-active-students">0</p>
                         </div>
                         <div class="bg-[#FF6B00]/10 p-3 rounded-full">
                             <svg class="w-6 h-6 text-[#FF6B00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,8 +112,8 @@
                 <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-[#8A2BE2] card-hover">
                     <div class="flex justify-between items-center">
                         <div>
-                            <p class="text-xs text-gray-500 mb-1">Library Visits</p>
-                            <p class="text-2xl font-bold text-[#8A2BE2]">5,678</p>
+                            <p class="text-xs text-gray-500 mb-1">Library Visits (All Time)</p>
+                            <p class="text-2xl font-bold text-[#8A2BE2]" id="stat-library-visits">0</p>
                         </div>
                         <div class="bg-[#8A2BE2]/10 p-3 rounded-full">
                             <svg class="w-6 h-6 text-[#8A2BE2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -223,97 +217,143 @@
                     <canvas id="combinedChart"></canvas>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
-        const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
-        new Chart(attendanceCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                datasets: [{
-                    label: 'Library Visits',
-                    data: [450, 520, 480, 600],
-                    backgroundColor: '#004A8D',
-                    borderWidth: 0,
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            display: true,
-                            drawBorder: false
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
-            }
-        });
+        // Fetch and display real stats from backend
+        function updateReports() {
+            fetch('fetch_reports_data.php')
+                .then(res => res.json())
+                .then(data => {
+                    // Update stat cards
+                    document.getElementById('stat-total-borrows').textContent = data.totalBorrows;
+                    document.getElementById('stat-total-returns').textContent = data.totalReturns;
+                    document.getElementById('stat-active-students').textContent = data.activeStudents;
+                    document.getElementById('stat-library-visits').textContent = data.libraryVisits;
 
-        const combinedCtx = document.getElementById('combinedChart').getContext('2d');
-        new Chart(combinedCtx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-                datasets: [{
-                    label: 'Borrows',
-                    data: [65, 59, 80, 81, 56],
-                    borderColor: '#004A8D',
-                    backgroundColor: 'rgba(0, 74, 141, 0.05)',
-                    borderWidth: 2,
-                    tension: 0.4,
-                    fill: true
-                },
-                {
-                    label: 'Returns',
-                    data: [28, 48, 40, 19, 86],
-                    borderColor: '#FFC107',
-                    backgroundColor: 'rgba(255, 193, 7, 0.05)',
-                    borderWidth: 2,
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            display: true,
-                            drawBorder: false
+                    // Attendance Trend
+                    const attendanceChart = Chart.getChart('attendanceChart');
+                    if (attendanceChart) attendanceChart.destroy();
+                    new Chart(document.getElementById('attendanceChart').getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                            datasets: [{
+                                label: 'Library Visits',
+                                data: data.attendanceTrend,
+                                backgroundColor: '#004A8D',
+                                borderWidth: 0,
+                                borderRadius: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: { y: { beginAtZero: true, grid: { display: true, drawBorder: false } }, x: { grid: { display: false } } },
+                            plugins: { legend: { display: false } }
                         }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
+                    });
+
+                    // Top Active Students
+                    const topStudents = data.topStudents;
+                    const topStudentsDiv = document.querySelector('.main-content .grid-cols-1.lg\:grid-cols-2 .card-hover:nth-child(2) .space-y-3');
+                    if (topStudentsDiv) {
+                        topStudentsDiv.innerHTML = topStudents.map((s, i) => `
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg student-item">
+                                <div class="flex items-center">
+                                    <div class="bg-[#004A8D]/10 p-2 rounded-full mr-3">
+                                        <span class="text-[#004A8D] font-medium">${i+1}</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">${s.full_name}</p>
+                                        <p class="text-sm text-gray-600">${s.program}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-[#004A8D] font-medium">${s.visits} Visits</p>
+                                </div>
+                            </div>
+                        `).join('');
                     }
-                }
+
+                    // Book Circulation Analysis
+                    const combinedChart = Chart.getChart('combinedChart');
+                    if (combinedChart) combinedChart.destroy();
+                    new Chart(document.getElementById('combinedChart').getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: getLastMonths(5),
+                            datasets: [
+                                {
+                                    label: 'Borrows',
+                                    data: data.borrowsMonthly,
+                                    borderColor: '#004A8D',
+                                    backgroundColor: 'rgba(0, 74, 141, 0.05)',
+                                    borderWidth: 2,
+                                    tension: 0.4,
+                                    fill: true
+                                },
+                                {
+                                    label: 'Returns',
+                                    data: data.returnsMonthly,
+                                    borderColor: '#FFC107',
+                                    backgroundColor: 'rgba(255, 193, 7, 0.05)',
+                                    borderWidth: 2,
+                                    tension: 0.4,
+                                    fill: true
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { intersect: false, mode: 'index' },
+                            scales: { y: { beginAtZero: true, grid: { display: true, drawBorder: false } }, x: { grid: { display: false } } }
+                        }
+                    });
+                });
+        }
+        function getLastMonths(n) {
+            const arr = [];
+            const now = new Date();
+            for (let i = n-1; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                arr.push(d.toLocaleString('default', { month: 'short' }));
             }
+            return arr;
+        }
+        // Export PDF
+        function exportPDF() {
+            fetch('export_reports_pdf.php').then(res => res.blob()).then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'library_report.pdf';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            });
+        }
+        // Export Excel
+        function exportExcel() {
+            fetch('export_reports_excel.php').then(res => res.blob()).then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'library_report.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            });
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            updateReports();
+            document.querySelector('button.bg-\[#004A8D\]').onclick = exportPDF;
+            document.querySelector('button.bg-\[#FFC107\]').onclick = exportExcel;
         });
     </script>
     <script src="sidebar.js"></script>
