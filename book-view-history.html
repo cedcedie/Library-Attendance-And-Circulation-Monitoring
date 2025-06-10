@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Borrow History</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="sidebar.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .dark body {
+            background-color: #18181b !important;
+            color: #e5e7eb !important;
+        }
+        .dark .main-content {
+            background: #23272f !important;
+            color: #e5e7eb !important;
+        }
+        .dark table {
+            background: #23272f !important;
+            color: #e5e7eb !important;
+        }
+        .dark th, .dark td {
+            color: #e5e7eb !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-poppins overflow-x-hidden">
+    <div class="flex min-h-screen">
+        <div id="sidebar-container"></div>
+        <div class="main-content flex-1 p-6">
+            <header class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold text-gray-800">Book Borrow History</h1>
+                <a href="books.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">Back to Book List</a>
+            </header>
+            <div class="overflow-x-auto bg-white shadow-lg rounded-lg">
+                <table class="min-w-full text-sm text-left text-gray-500">
+                    <thead class="bg-gray-800 text-white">
+                        <tr>
+                            <th class="px-6 py-4 font-medium">Student ID</th>
+                            <th class="px-6 py-4 font-medium">Book Title</th>
+                            <th class="px-6 py-4 font-medium">Status</th>
+                            <th class="px-6 py-4 font-medium">Borrow Date</th>
+                            <th class="px-6 py-4 font-medium">Due Date</th>
+                            <th class="px-6 py-4 font-medium">Return Date</th>
+                            <th class="px-6 py-4 font-medium">Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body">
+                        <tr><td colspan="7" class="text-center px-6 py-4 text-gray-600">Loading...</td></tr>
+                    </tbody>
+                </table>
+                <div class="flex justify-between items-center mt-4">
+                    <div id="pagination-info" class="text-sm text-gray-600">Showing 0-0 of 0 records</div>
+                    <div class="flex space-x-2">
+                        <button id="prevPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Previous</button>
+                        <button id="nextPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="sidebar.js"></script>
+    <script>
+        function getBookIdFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('book_id');
+        }
+        function statusClass(status) {
+            if (!status) return '';
+            const s = status.toLowerCase();
+            if (s === 'returned') return 'text-green-600 font-semibold';
+            if (s === 'pending') return 'text-blue-600 font-semibold';
+            if (s === 'overdue') return 'text-red-600 font-semibold';
+            return 'text-gray-800 font-semibold';
+        }
+        let historyData = [];
+        let currentPage = 1;
+        const rowsPerPage = 10;
+
+        function renderHistoryTable() {
+            const tbody = document.getElementById('history-table-body');
+            const paginationInfo = document.getElementById('pagination-info');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            const total = historyData.length;
+            const totalPages = Math.ceil(total / rowsPerPage);
+            if (currentPage > totalPages) currentPage = totalPages || 1;
+            if (currentPage < 1) currentPage = 1;
+            const startIdx = (currentPage - 1) * rowsPerPage;
+            const endIdx = Math.min(startIdx + rowsPerPage, total);
+            const pageData = historyData.slice(startIdx, endIdx);
+            tbody.innerHTML = '';
+            if (pageData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center px-6 py-4 text-gray-600">No history found.</td></tr>';
+            } else {
+                pageData.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="px-6 py-4">${row.student_id || '-'}</td>
+                        <td class="px-6 py-4">${row.book_title || '-'}</td>
+                        <td class="px-6 py-4 ${statusClass(row.status)}">${row.status || '-'}</td>
+                        <td class="px-6 py-4">${row.borrow_date || '-'}</td>
+                        <td class="px-6 py-4">${row.due_date || '-'}</td>
+                        <td class="px-6 py-4">${row.return_date || '-'}</td>
+                        <td class="px-6 py-4">${row.created_at || '-'}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+            paginationInfo.textContent = `Showing ${total === 0 ? 0 : startIdx + 1}-${endIdx} of ${total} records`;
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const bookId = getBookIdFromURL();
+            const tbody = document.getElementById('history-table-body');
+            if (!bookId) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center px-6 py-4 text-red-500">No book ID provided.</td></tr>';
+                return;
+            }
+            fetch(`fetch_book_history.php?book_id=${encodeURIComponent(bookId)}`)
+                .then(res => res.json())
+                .then(data => {
+                    historyData = Array.isArray(data) ? data : [];
+                    currentPage = 1;
+                    renderHistoryTable();
+                })
+                .catch(() => {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center px-6 py-4 text-red-500">Failed to load history.</td></tr>';
+                });
+            document.getElementById('prevPageBtn').addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderHistoryTable();
+                }
+            });
+            document.getElementById('nextPageBtn').addEventListener('click', function() {
+                const totalPages = Math.ceil(historyData.length / rowsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderHistoryTable();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

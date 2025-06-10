@@ -13,6 +13,21 @@
     .modal-bg {
       background-color: rgba(0, 0, 0, 0.5);
     }
+    .dark body {
+      background-color: #18181b !important;
+      color: #e5e7eb !important;
+    }
+    .dark .main-content {
+      background: #23272f !important;
+      color: #e5e7eb !important;
+    }
+    .dark table {
+      background: #23272f !important;
+      color: #e5e7eb !important;
+    }
+    .dark th, .dark td {
+      color: #e5e7eb !important;
+    }
   </style>
 </head>
 <body class="bg-gray-50 font-poppins overflow-x-hidden">
@@ -29,13 +44,13 @@
           <button onclick="filterTable()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">Search</button>
         </div>
         <div class="flex space-x-4 items-center">
-  <select class="p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-    <option>Sort by</option>
-    <option>Type</option>
-    <option>Student ID</option>
-    <option>Name</option>
-    <option>Program</option>
-    <option>Time</option>
+  <select id="sortSelect" class="p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <option value="">Sort by</option>
+    <option value="type">Type</option>
+    <option value="student_id">Student ID</option>
+    <option value="full_name">Name</option>
+    <option value="program">Program</option>
+    <option value="date">Date</option>
   </select>
   <select id="attendanceType" class="p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500">
     <option value="inside">Inside</option>
@@ -55,7 +70,8 @@
               <th class="px-6 py-4 font-medium">Type</th>
               <th class="px-6 py-4 font-medium">Date</th>
               <th class="px-6 py-4 font-medium">Time In</th>
-                <th class="px-6 py-4 font-medium">Time Out</th>
+              <th class="px-6 py-4 font-medium">Time Out</th>
+              <th class="px-6 py-4 font-medium">Status</th>
             </tr>
           </thead>
           <tbody id="attendanceTableBody">
@@ -64,10 +80,10 @@
       </div>
 
       <div class="flex justify-between items-center mt-6">
-        <div class="text-sm text-gray-600">Showing 1-10 of 100 records</div>
+        <div id="pagination-info" class="text-sm text-gray-600">Showing 1-10 of 100 records</div>
         <div class="flex space-x-2">
-          <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Previous</button>
-          <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Next</button>
+          <button id="prevPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Previous</button>
+          <button id="nextPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Next</button>
         </div>
       </div>
     </div>
@@ -89,12 +105,21 @@
   const attendanceType = document.getElementById('attendanceType');
   const tableBody = document.getElementById('attendanceTableBody');
   const searchInput = document.getElementById('searchInput');
+  const sortSelect = document.getElementById('sortSelect');
+  const paginationInfo = document.getElementById('pagination-info');
+  const prevPageBtn = document.getElementById('prevPageBtn');
+  const nextPageBtn = document.getElementById('nextPageBtn');
 
-  const fetchAttendanceUrl = 'https://8c36-120-29-110-79.ngrok-free.app/library_system/fetch_attendance_logs.php'; 
-  const logAttendanceUrl = 'https://8c36-120-29-110-79.ngrok-free.app/library_system/api/attendance/attendance_api.php'; 
+  const fetchAttendanceUrl = 'https://619e-120-29-110-79.ngrok-free.app/library_system/fetch_attendance_logs.php'; 
+  const logAttendanceUrl = 'https://619e-120-29-110-79.ngrok-free.app/library_system/api/attendance/attendance_api.php'; 
 
   let qrScanner;
   let isProcessingScan = false;
+  let attendanceData = [];
+  let currentPage = 1;
+  const rowsPerPage = 10;
+  let currentSort = '';
+  let currentSearch = '';
 
   function fetchStudentById(studentId) {
     return fetch(`${logAttendanceUrl}?student_id=${encodeURIComponent(studentId)}`)
@@ -115,6 +140,62 @@
     });
   }
 
+  function compareValues(key, order = 'asc') {
+    return function(a, b) {
+      if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) return 0;
+      let varA = a[key] ? a[key].toString().toLowerCase() : '';
+      let varB = b[key] ? b[key].toString().toLowerCase() : '';
+      if (varA < varB) return order === 'asc' ? -1 : 1;
+      if (varA > varB) return order === 'asc' ? 1 : -1;
+      return 0;
+    };
+  }
+
+  function renderAttendanceTable() {
+    let filtered = attendanceData.filter(log => {
+      if (!currentSearch) return true;
+      return (
+        log.student_id.toLowerCase().includes(currentSearch) ||
+        log.full_name.toLowerCase().includes(currentSearch) ||
+        log.program.toLowerCase().includes(currentSearch)
+      );
+    });
+    if (currentSort) {
+      filtered = filtered.slice().sort(compareValues(currentSort, 'asc'));
+    }
+    const total = filtered.length;
+    const totalPages = Math.ceil(total / rowsPerPage);
+    if (currentPage > totalPages) currentPage = totalPages || 1;
+    const startIdx = (currentPage - 1) * rowsPerPage;
+    const endIdx = Math.min(startIdx + rowsPerPage, total);
+    const pageData = filtered.slice(startIdx, endIdx);
+    tableBody.innerHTML = '';
+    pageData.forEach(log => {
+      const row = `
+        <tr class="border-b hover:bg-gray-50">
+          <td class="px-6 py-4">${log.student_id}</td>
+          <td class="px-6 py-4">${log.full_name}</td>
+          <td class="px-6 py-4">${log.program}</td>
+          <td class="px-6 py-4">${log.type === 'entry' ? 'Entry' : 'Exit'}</td>
+          <td class="px-6 py-4">${log.date}</td>
+          <td class="px-6 py-4">${log.time_in || '-'}</td>
+          <td class="px-6 py-4">${log.time_out || '-'}</td>
+          <td class="px-6 py-4">
+            <span class="px-3 py-1 text-xs font-medium rounded-full ${
+              log.status === 'Inside' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'
+            }">
+              ${log.status}
+            </span>
+          </td>
+        </tr>
+      `;
+      tableBody.insertAdjacentHTML('beforeend', row);
+    });
+    paginationInfo.textContent = `Showing ${total === 0 ? 0 : startIdx + 1}-${endIdx} of ${total} records`;
+    prevPageBtn.disabled = currentPage === 1;
+    nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+  }
+
   async function loadAttendanceLogs() {
     try {
       const response = await fetch(fetchAttendanceUrl, {
@@ -122,7 +203,6 @@
         headers: { 'Content-Type': 'application/json' }
       });
       const text = await response.text();
-
       let data;
       try {
         data = JSON.parse(text);
@@ -131,40 +211,54 @@
         alert("Error loading attendance logs.");
         return;
       }
-
       if (!data.success) {
         alert("Error loading attendance logs: " + (data.error || "Unknown error"));
         return;
       }
-
-      tableBody.innerHTML = '';
-
-      data.data.forEach(log => {
-  const row = `
-    <tr class="border-b hover:bg-gray-50">
-      <td class="px-6 py-4">${log.student_id}</td>
-      <td class="px-6 py-4">${log.full_name}</td>
-      <td class="px-6 py-4">${log.program}</td>
-      <td class="px-6 py-4">
-        <span class="px-3 py-1 text-xs font-medium rounded-full ${
-          log.type === 'entry' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'
-        }">
-          ${log.type === 'entry' ? 'Inside' : 'Outside'}
-        </span>
-      </td>
-      <td class="px-6 py-4">${log.date}</td>
-      <td class="px-6 py-4">${log.type === 'entry' ? log.time_in : '-'}</td>
-      <td class="px-6 py-4">${log.type === 'exit' ? log.time_out : '-'}</td>
-    </tr>
-  `;
- 
-        tableBody.insertAdjacentHTML('beforeend', row);
-      });
+      attendanceData = data.data || [];
+      currentPage = 1;
+      renderAttendanceTable();
     } catch (error) {
       console.error("Fetch error:", error);
       alert("Failed to fetch attendance logs.");
     }
   }
+
+  function handleSearch() {
+    currentSearch = searchInput.value.toLowerCase();
+    currentPage = 1;
+    renderAttendanceTable();
+  }
+
+  function handleSort() {
+    currentSort = sortSelect.value;
+    renderAttendanceTable();
+  }
+
+  prevPageBtn.addEventListener('click', () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderAttendanceTable();
+    }
+  });
+  nextPageBtn.addEventListener('click', () => {
+    const filtered = attendanceData.filter(log => {
+      if (!currentSearch) return true;
+      return (
+        log.student_id.toLowerCase().includes(currentSearch) ||
+        log.full_name.toLowerCase().includes(currentSearch) ||
+        log.program.toLowerCase().includes(currentSearch)
+      );
+    });
+    const totalPages = Math.ceil(filtered.length / rowsPerPage);
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderAttendanceTable();
+    }
+  });
+  sortSelect.addEventListener('change', handleSort);
+  searchInput.addEventListener('input', debounce(handleSearch, 200));
+  window.addEventListener('DOMContentLoaded', loadAttendanceLogs);
 
   openBtn.addEventListener('click', () => {
     modal.classList.remove('hidden');
@@ -205,20 +299,28 @@
           const displayType = selectedType === 'entry' ? 'Inside' : 'Outside';
           const colorClass = selectedType === 'entry' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800';
 
-            const row = `
-  <tr class="border-b hover:bg-gray-50">
-    <td class="px-6 py-4">${student.student_id}</td>
-    <td class="px-6 py-4">${student.full_name}</td>
-    <td class="px-6 py-4">${student.program}</td>
-    <td class="px-6 py-4">
-      <span class="px-3 py-1 text-xs font-medium rounded-full ${colorClass}">
-        ${displayType}
-      </span>
-    </td>
-    <td class="px-6 py-4">${dateStr}</td>
-    <td class="px-6 py-4">${timeStr}</td>
-  </tr>
+        
+  const row = `
+<tr class="border-b hover:bg-gray-50">
+  <td class="px-6 py-4">${student.student_id}</td>
+  <td class="px-6 py-4">${student.full_name}</td>
+  <td class="px-6 py-4">${student.program}</td>
+  <td class="px-6 py-4">
+    <span class="px-3 py-1 text-xs font-medium rounded-full ${colorClass}">
+      ${displayType}
+    </span>
+  </td>
+  <td class="px-6 py-4">${dateStr}</td>
+  <td class="px-6 py-4">${selectedType === 'entry' ? timeStr : '-'}</td>
+  <td class="px-6 py-4">${selectedType === 'exit' ? timeStr : '-'}</td>
+  <td class="px-6 py-4">
+    <span class="px-3 py-1 text-xs font-medium rounded-full ${colorClass}">
+      ${displayType}
+    </span>
+  </td>
+</tr>
 `;
+
           tableBody.insertAdjacentHTML('afterbegin', row);
 
           alert(`${student.full_name} logged as ${displayType}`);
@@ -273,7 +375,6 @@
   }
 
   searchInput.addEventListener("input", debounce(filterTable, 200));
-  window.addEventListener('DOMContentLoaded', loadAttendanceLogs);
 </script>
 
 </body>

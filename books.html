@@ -7,6 +7,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="sidebar.css">
+    <style>
+        .dark body {
+            background-color: #18181b !important;
+            color: #e5e7eb !important;
+        }
+        .dark .main-content {
+            background: #23272f !important;
+            color: #e5e7eb !important;
+        }
+        .dark table {
+            background: #23272f !important;
+            color: #e5e7eb !important;
+        }
+        .dark th, .dark td {
+            color: #e5e7eb !important;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 font-poppins overflow-x-hidden">
     <div class="flex min-h-screen">
@@ -18,14 +35,13 @@
             <div class="flex justify-between items-center mb-4">
                 <div class="flex space-x-2">
                     <input type="text" placeholder="Search by name, author, or ID" class="p-2 w-64 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" id="search-input">
-                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">Search</button>
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300" onclick="handleSearch()">Search</button>
                 </div>
                 <div class="flex space-x-4">
-                    <select class="p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option>Sort by</option>
-                        <option>Book Title</option>
-                        <option>Author</option>
-                        <option>Stock Quantity</option>
+                    <select id="sortSelect" class="p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Sort by</option>
+                        <option value="title">Book Title</option>
+                        <option value="author">Author</option>
                     </select>
                     <a href="add-edit-book.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">Add New Book</a>
                 </div>
@@ -46,10 +62,10 @@
                 </table>
             </div>
             <div class="flex justify-between items-center mt-6">
-                <div class="text-sm text-gray-600">Showing 1-10 of 100 records</div>
+                <div id="pagination-info" class="text-sm text-gray-600">Showing 1-10 of 100 records</div>
                 <div class="flex space-x-2">
-                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Previous</button>
-                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Next</button>
+                    <button id="prevPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Previous</button>
+                    <button id="nextPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Next</button>
                 </div>
             </div>
         </div>
@@ -57,50 +73,158 @@
     <script src="sidebar.js"></script>
     <script>
         const bookTableBody = document.getElementById("book-table-body");
+        const sortSelect = document.getElementById('sortSelect');
+        const paginationInfo = document.getElementById('pagination-info');
+        const prevPageBtn = document.getElementById('prevPageBtn');
+        const nextPageBtn = document.getElementById('nextPageBtn');
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.querySelector('button[onclick="handleSearch()"]');
 
-        fetch('fetch_books.php')
-    .then(response => response.json())
-    .then(data => {
-        console.log('Fetched book data:', data); 
-        if (Array.isArray(data)) { 
-            data.forEach(book => {
-                const row = document.createElement("tr");
-                row.classList.add("border-b", "hover:bg-gray-50");
+        let booksData = [];
+        let currentPage = 1;
+        const rowsPerPage = 10;
+        let currentSort = '';
+        let currentSearch = '';
 
-                row.innerHTML = `
-                    <td class="px-6 py-4">${book.book_id}</td>
-                    <td class="px-6 py-4">${book.title}</td>
-                    <td class="px-6 py-4">${book.author}</td>
-                    <td class="px-6 py-4">
-                        <div class="flex space-x-2">
-                            <a href="add-edit-book.html?book_id=${book.book_id}" 
-                               class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300">
-                                Edit
-                            </a>
-                            <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300 deleteBtn" 
-                                    data-book-id="${book.book_id}">
-                                Delete
-                            </button>
-                            <a href="book-view-history.html?book_id=${book.book_id}" 
-                               class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">
-                                View History
-                            </a>
-                            <button class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-all duration-300 printQRBtn" 
-                                    data-book-id="${book.book_id}">
-                                Print QR
-                            </button>
-                        </div>
-                    </td>
-                `;
-                bookTableBody.appendChild(row);
-            });
-        } else {
-            console.error('Fetched data is not an array:', data); 
+        function debounce(fn, delay) {
+            let timeoutId;
+            return (...args) => {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => fn(...args), delay);
+            };
         }
-    })
-    .catch(error => {
-        console.error('Error fetching book data:', error);
-    });
+
+        function getFilteredBooks() {
+            let filtered = booksData.filter(book => {
+                if (!currentSearch) return true;
+                return (
+                    String(book.book_id).toLowerCase().includes(currentSearch) ||
+                    (book.title && book.title.toLowerCase().includes(currentSearch)) ||
+                    (book.author && book.author.toLowerCase().includes(currentSearch))
+                );
+            });
+            if (currentSort) {
+                filtered = filtered.slice().sort(compareValues(currentSort, 'asc'));
+            }
+            return filtered;
+        }
+
+        function compareValues(key, order = 'asc') {
+            return function(a, b) {
+                if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) return 0;
+                let varA = a[key] ? a[key].toString().toLowerCase() : '';
+                let varB = b[key] ? b[key].toString().toLowerCase() : '';
+                if (varA < varB) return order === 'asc' ? -1 : 1;
+                if (varA > varB) return order === 'asc' ? 1 : -1;
+                return 0;
+            };
+        }
+
+        function renderBooksTable() {
+            let filtered = getFilteredBooks();
+            const total = filtered.length;
+            const totalPages = Math.ceil(total / rowsPerPage);
+            if (currentPage > totalPages) currentPage = totalPages || 1;
+            if (currentPage < 1) currentPage = 1;
+            const startIdx = (currentPage - 1) * rowsPerPage;
+            const endIdx = Math.min(startIdx + rowsPerPage, total);
+            const pageData = filtered.slice(startIdx, endIdx);
+            bookTableBody.innerHTML = '';
+            if (pageData.length === 0) {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td colspan="4" class="text-center px-6 py-4 text-gray-600">No books found.</td>`;
+                bookTableBody.appendChild(row);
+            } else {
+                // Highlight duplicate Book IDs if any
+                const idCount = {};
+                booksData.forEach(book => {
+                    idCount[book.book_id] = (idCount[book.book_id] || 0) + 1;
+                });
+                pageData.forEach(book => {
+                    const row = document.createElement("tr");
+                    row.classList.add("border-b", "hover:bg-gray-50");
+                    if (idCount[book.book_id] > 1) {
+                        row.style.backgroundColor = '#fff3cd'; // light yellow for duplicate
+                        row.title = 'Duplicate Book ID';
+                    }
+                    row.innerHTML = `
+                        <td class="px-6 py-4">${book.book_id}</td>
+                        <td class="px-6 py-4">${book.title}</td>
+                        <td class="px-6 py-4">${book.author}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex space-x-2">
+                                <a href="add-edit-book.html?book_id=${book.book_id}" 
+                                   class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300">
+                                    Edit
+                                </a>
+                                <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300 deleteBtn" 
+                                        data-book-id="${book.book_id}">
+                                    Delete
+                                </button>
+                                <a href="book-view-history.html?book_id=${book.book_id}" 
+                                   class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">
+                                    View History
+                                </a>
+                                <button class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-all duration-300 printQRBtn" 
+                                        data-book-id="${book.book_id}">
+                                    Print QR
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    bookTableBody.appendChild(row);
+                });
+            }
+            paginationInfo.textContent = `Showing ${total === 0 ? 0 : startIdx + 1}-${endIdx} of ${total} records`;
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        function loadBooks() {
+            fetch('fetch_books.php')
+                .then(response => response.json())
+                .then(data => {
+                    booksData = Array.isArray(data) ? data : [];
+                    currentPage = 1;
+                    renderBooksTable();
+                })
+                .catch(error => {
+                    console.error('Error fetching book data:', error);
+                });
+        }
+
+        function handleSearch(e) {
+            if (e) e.preventDefault();
+            currentSearch = searchInput.value.toLowerCase();
+            currentPage = 1;
+            renderBooksTable();
+        }
+
+        function handleSort() {
+            currentSort = sortSelect.value;
+            currentPage = 1;
+            renderBooksTable();
+        }
+
+        prevPageBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderBooksTable();
+            }
+        });
+        nextPageBtn.addEventListener('click', () => {
+            let filtered = getFilteredBooks();
+            const totalPages = Math.ceil(filtered.length / rowsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderBooksTable();
+            }
+        });
+        sortSelect.addEventListener('change', handleSort);
+        searchInput.addEventListener('input', debounce(handleSearch, 200));
+        if (searchBtn) searchBtn.addEventListener('click', handleSearch);
+        window.addEventListener('DOMContentLoaded', loadBooks);
+
         document.getElementById('book-table-body').addEventListener('click', function(e) {
             const printBtn = e.target.closest('.printQRBtn');
             const deleteBtn = e.target.closest('.deleteBtn');
@@ -156,7 +280,6 @@
             if (deleteBtn) {
                 const bookId = deleteBtn.getAttribute("data-book-id");
                 const confirmation = confirm(`Are you sure you want to delete book with ID ${bookId}?`);
-
                 if (confirmation) {
                     fetch('delete_books.php', {
                         method: 'POST',
@@ -171,7 +294,13 @@
                     .then(result => {
                         alert(result);
                         if (result.includes("successfully")) {
-                            deleteBtn.closest('tr').remove();
+                            // Remove from booksData and re-render
+                            booksData = booksData.filter(b => b.book_id !== bookId);
+                            // If current page is now empty, go to previous page if possible
+                            let filtered = getFilteredBooks();
+                            const totalPages = Math.ceil(filtered.length / rowsPerPage);
+                            if (currentPage > totalPages) currentPage = totalPages || 1;
+                            renderBooksTable();
                         }
                     })
                     .catch(error => console.error('Error deleting book:', error));

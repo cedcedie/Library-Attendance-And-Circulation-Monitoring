@@ -42,21 +42,21 @@
             </header>
             <div class="flex justify-between mb-4">
                 <div class="flex space-x-4">
-                    <input type="text" placeholder="Search by name, ID, or program" class="p-2 w-64 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="searchInput" placeholder="Search by name, ID, or program" class="p-2 w-64 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">Search</button>
                 </div>
                 <div class="flex space-x-4">
-                    <select class="p-2 border rounded-lg shadow-sm">
-                        <option>Program</option>
-                        <option>BSIT</option>
-                        <option>BSCS</option>
-                        <option>BSCPE</option>
+                    <select id="programSelect" class="p-2 border rounded-lg shadow-sm">
+                        <option value="">Program</option>
+                        <option value="BSIT">BSIT</option>
+                        <option value="BSCS">BSCS</option>
+                        <option value="BSCPE">BSCPE</option>
                     </select>
-                    <select class="p-2 border rounded-lg shadow-sm">
-                        <option>Sort by</option>
-                        <option>Name</option>
-                        <option>Date Added</option>
-                        <option>Last Activity</option>
+                    <select id="sortSelect" class="p-2 border rounded-lg shadow-sm">
+                        <option value="">Sort by</option>
+                        <option value="full_name">Name</option>
+                        <option value="date_added">Date Added</option>
+                        <option value="last_activity">Last Activity</option>
                     </select>
                     <a href="add-edit-student.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">Add New Student</a>
                 </div>
@@ -79,10 +79,10 @@
                 </table>
             </div>
             <div class="flex justify-between items-center mt-6">
-                <div class="text-sm text-gray-600">Showing 1-10 of 100 students</div>
+                <div id="pagination-info" class="text-sm text-gray-600">Showing 1-10 of 100 students</div>
                 <div class="flex space-x-2">
-                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Previous</button>
-                    <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Next</button>
+                    <button id="prevPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Previous</button>
+                    <button id="nextPageBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Next</button>
                 </div>
             </div>
         </div>
@@ -91,15 +91,54 @@
     <script src="sidebar.js"></script>
     <script>
         const studentTableBody = document.getElementById("student-table-body");
-    
-        fetch('fetch_students.php')
-        .then(response => response.json())
-        .then(data => {
-            console.log('Fetched student data:', data);
-            data.forEach(student => {
+        const sortSelect = document.getElementById('sortSelect');
+        const programSelect = document.getElementById('programSelect');
+        const paginationInfo = document.getElementById('pagination-info');
+        const prevPageBtn = document.getElementById('prevPageBtn');
+        const nextPageBtn = document.getElementById('nextPageBtn');
+        const searchInput = document.getElementById('searchInput');
+
+        let studentsData = [];
+        let currentPage = 1;
+        const rowsPerPage = 10;
+        let currentSort = '';
+        let currentSearch = '';
+        let currentProgram = '';
+
+        function compareValues(key, order = 'asc') {
+            return function(a, b) {
+                if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) return 0;
+                let varA = a[key] ? a[key].toString().toLowerCase() : '';
+                let varB = b[key] ? b[key].toString().toLowerCase() : '';
+                if (varA < varB) return order === 'asc' ? -1 : 1;
+                if (varA > varB) return order === 'asc' ? 1 : -1;
+                return 0;
+            };
+        }
+
+        function renderStudentsTable() {
+            let filtered = studentsData.filter(student => {
+                let matchesSearch = !currentSearch || (
+                    student.student_id.toLowerCase().includes(currentSearch) ||
+                    student.full_name.toLowerCase().includes(currentSearch) ||
+                    student.program.toLowerCase().includes(currentSearch)
+                );
+                let matchesProgram = !currentProgram || student.program === currentProgram;
+                return matchesSearch && matchesProgram;
+            });
+            if (currentSort) {
+                filtered = filtered.slice().sort(compareValues(currentSort, 'asc'));
+            }
+            const total = filtered.length;
+            const totalPages = Math.ceil(total / rowsPerPage);
+            if (currentPage > totalPages) currentPage = totalPages || 1;
+            const startIdx = (currentPage - 1) * rowsPerPage;
+            const endIdx = Math.min(startIdx + rowsPerPage, total);
+            const pageData = filtered.slice(startIdx, endIdx);
+            studentTableBody.innerHTML = '';
+            pageData.forEach(student => {
                 const row = document.createElement("tr");
                 row.classList.add("border-b", "hover:bg-gray-50");
-    
                 row.innerHTML = `
                     <td class="px-6 py-4">${student.student_id}</td>
                     <td class="px-6 py-4">${student.full_name}</td>
@@ -129,10 +168,64 @@
                 `;
                 studentTableBody.appendChild(row);
             });
-        })
-        .catch(error => {
-            console.error('Error fetching student data:', error);
+            paginationInfo.textContent = `Showing ${total === 0 ? 0 : startIdx + 1}-${endIdx} of ${total} students`;
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+        }
+
+        function loadStudents() {
+            fetch('fetch_students.php')
+                .then(response => response.json())
+                .then(data => {
+                    studentsData = Array.isArray(data) ? data : [];
+                    currentPage = 1;
+                    renderStudentsTable();
+                })
+                .catch(error => {
+                    console.error('Error fetching student data:', error);
+                });
+        }
+
+        function handleSearch() {
+            currentSearch = searchInput.value.toLowerCase();
+            currentPage = 1;
+            renderStudentsTable();
+        }
+        function handleSort() {
+            currentSort = sortSelect.value;
+            renderStudentsTable();
+        }
+        function handleProgram() {
+            currentProgram = programSelect.value;
+            currentPage = 1;
+            renderStudentsTable();
+        }
+        prevPageBtn.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderStudentsTable();
+            }
         });
+        nextPageBtn.addEventListener('click', () => {
+            let filtered = studentsData.filter(student => {
+                let matchesSearch = !currentSearch || (
+                    student.student_id.toLowerCase().includes(currentSearch) ||
+                    student.full_name.toLowerCase().includes(currentSearch) ||
+                    student.program.toLowerCase().includes(currentSearch)
+                );
+                let matchesProgram = !currentProgram || student.program === currentProgram;
+                return matchesSearch && matchesProgram;
+            });
+            const totalPages = Math.ceil(filtered.length / rowsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderStudentsTable();
+            }
+        });
+        sortSelect.addEventListener('change', handleSort);
+        programSelect.addEventListener('change', handleProgram);
+        searchInput.addEventListener('input', handleSearch);
+        window.addEventListener('DOMContentLoaded', loadStudents);
     
         document.getElementById('student-table-body').addEventListener('click', function(e) {
             const printBtn = e.target.closest('.printQRBtn');

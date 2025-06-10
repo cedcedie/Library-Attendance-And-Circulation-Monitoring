@@ -180,15 +180,45 @@
         }
     }
 
-    form.onsubmit = function(e) {
+    form.onsubmit = async function(e) {
         e.preventDefault();
-        
         if (!barcodeGenerated) {
             alert("Please generate a QR Code before saving.");
             return false;
         }
-
         qrCodeDataField.value = bookIdField.value;
+
+        // Duplicate check
+        const title = document.getElementById('book-title').value.trim();
+        const bookId = bookIdField.value.trim();
+        let isEdit = isEditField.value === 'true';
+        let duplicate = false;
+        let duplicateMsg = '';
+        try {
+            const res = await fetch('fetch_books.php');
+            const books = await res.json();
+            if (Array.isArray(books)) {
+                for (const book of books) {
+                    if (!isEdit && book.book_id === bookId) {
+                        duplicate = true;
+                        duplicateMsg = 'A book with this Book ID already exists.';
+                        break;
+                    }
+                    if (book.title && book.title.trim().toLowerCase() === title.toLowerCase() && (!isEdit || book.book_id !== bookId)) {
+                        duplicate = true;
+                        duplicateMsg = 'A book with this title already exists.';
+                        break;
+                    }
+                }
+            }
+        } catch (err) {
+            alert('Could not check for duplicates. Please try again.');
+            return false;
+        }
+        if (duplicate) {
+            alert(duplicateMsg);
+            return false;
+        }
 
         fetch('insert_books.php', {
             method: 'POST',

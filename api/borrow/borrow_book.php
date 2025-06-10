@@ -45,6 +45,14 @@ try {
             exit;
         }
 
+        // Duplicate borrow check
+        $dupCheck = $pdo->prepare("SELECT 1 FROM borrow_requests WHERE student_id = ? AND book_id = ? AND (status IS NULL OR status NOT IN ('returned', 'rejected')) LIMIT 1");
+        $dupCheck->execute([$student_id, $book_id]);
+        if ($dupCheck->fetch()) {
+            echo json_encode(['success' => false, 'message' => 'You already have a pending or active borrow request for this book.']);
+            exit;
+        }
+
         $request_id = uniqid('BRW');
 
         $insert = $pdo->prepare("
@@ -63,8 +71,14 @@ try {
         ]);
 
         if ($success) {
-            // Removed update to books availability here
-
+            // Insert into borrow_history as well
+            $historyInsert = $pdo->prepare("INSERT INTO borrow_history (student_id, book_id, book_title, status, borrow_date, due_date, return_date, created_at) VALUES (?, ?, ?, 'pending', NOW(), ?, NULL, NOW())");
+            $historyInsert->execute([
+                $student_id,
+                $book_id,
+                $book['title'],
+                $expiration_date
+            ]);
             echo json_encode(['success' => true, 'request_id' => $request_id]);
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to insert request']);

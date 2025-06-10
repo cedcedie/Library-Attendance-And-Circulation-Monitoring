@@ -42,6 +42,8 @@ try {
 
         $date = date('Y-m-d');
         $time = date('H:i:s');
+
+        // Fetch student info
         $stmt = $pdo->prepare("SELECT student_id, full_name, program FROM students WHERE student_id = ?");
         $stmt->execute([$student_id]);
         $student = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -51,19 +53,22 @@ try {
         }
 
         if ($type === 'entry') {
-
+            // Check if already logged in without logging out
             $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM attendance_logs WHERE student_id = ? AND date = ? AND time_out IS NULL");
             $checkStmt->execute([$student_id, $date]);
             $count = $checkStmt->fetchColumn();
 
             if ($count > 0) {
-                throw new Exception("You already have an active entry without exit for today");
+                throw new Exception("You already have an active entry without an exit for today");
             }
 
+            // Insert new log
             $stmt = $pdo->prepare("INSERT INTO attendance_logs (student_id, full_name, program, type, date, time_in)
                                    VALUES (?, ?, ?, 'entry', ?, ?)");
             $stmt->execute([$student['student_id'], $student['full_name'], $student['program'], $date, $time]);
+
         } else {
+            // Handle "exit"
             $idStmt = $pdo->prepare("
                 SELECT id FROM attendance_logs 
                 WHERE student_id = ? AND date = ? AND time_out IS NULL 
@@ -73,10 +78,11 @@ try {
             $logId = $idStmt->fetchColumn();
 
             if (!$logId) {
-                throw new Exception("No active entry found for exit");
+                throw new Exception("No active 'entry' record found for exit");
             }
 
-            $updateStmt = $pdo->prepare("UPDATE attendance_logs SET time_out = ? WHERE id = ?");
+            // Update time_out and set type to 'exit'
+            $updateStmt = $pdo->prepare("UPDATE attendance_logs SET time_out = ?, type = 'exit' WHERE id = ?");
             $updateStmt->execute([$time, $logId]);
         }
 
@@ -88,6 +94,7 @@ try {
             'date' => $date,
             'time' => $time
         ]);
+
     } else {
         echo json_encode(['success' => false, 'error' => 'Invalid HTTP method']);
     }

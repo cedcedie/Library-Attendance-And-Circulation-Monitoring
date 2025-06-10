@@ -186,6 +186,35 @@
                 flex-direction: column;
             }
         }
+
+        body.dark, .dark body {
+            background-color: #18181b !important;
+            color: #e5e7eb !important;
+        }
+        .dark .main-content, .dark .settings-section, .dark .header {
+            background: #23272f !important;
+            color: #e5e7eb !important;
+        }
+        .dark .form-group input,
+        .dark .form-group select,
+        .dark .form-group textarea {
+            background: #18181b !important;
+            color: #e5e7eb !important;
+            border-color: #374151 !important;
+        }
+        .dark .btn {
+            background: linear-gradient(135deg, #6366f1 0%, #23272f 100%) !important;
+            color: #fff !important;
+        }
+        .dark .btn-secondary {
+            background: #374151 !important;
+        }
+        .dark .settings-section {
+            border-color: #374151 !important;
+        }
+        .dark .section-title {
+            border-bottom: 2px solid #6366f1 !important;
+        }
     </style>
 </head>
 <body>
@@ -193,9 +222,11 @@
         <div id="sidebar-container"></div>
        
         <div class="main-content">
-            <div class="header">
-                <h1>⚙️ System Settings</h1>
-                <p>Configure your library attendance and circulation monitoring system</p>
+            <div class="header flex justify-between items-center">
+                <div>
+                    <h1>⚙️ System Settings</h1>
+                    <p>Configure your library attendance and circulation monitoring system</p>
+                </div>
             </div>
 
             <div class="settings-container">
@@ -689,6 +720,82 @@
                 });
             });
         });
+
+        // Fetch settings from backend on load
+        async function loadSettingsFromBackend() {
+            try {
+                const res = await fetch('get_settings.php');
+                const data = await res.json();
+                if (data.success && data.settings) {
+                    const s = data.settings;
+                    document.getElementById('library-name').value = s.general.libraryName || '';
+                    document.getElementById('library-code').value = s.general.libraryCode || '';
+                    document.getElementById('library-address').value = s.general.libraryAddress || '';
+                    document.getElementById('contact-phone').value = s.general.contactPhone || '';
+                    document.getElementById('contact-email').value = s.general.contactEmail || '';
+                    document.getElementById('open-time').value = s.operatingHours.openTime || '';
+                    document.getElementById('close-time').value = s.operatingHours.closeTime || '';
+                    ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'].forEach(day => {
+                        document.getElementById(day).checked = !!s.operatingHours.operatingDays[day];
+                    });
+                    document.getElementById('enable-attendance').checked = !!s.attendance.enableAttendance;
+                    document.getElementById('attendance-method').value = s.attendance.attendanceMethod || 'barcode';
+                    document.getElementById('auto-checkout').value = s.attendance.autoCheckout || 8;
+                    document.getElementById('guest-tracking').checked = !!s.attendance.guestTracking;
+                    document.getElementById('attendance-reports').checked = !!s.attendance.attendanceReports;
+                    document.getElementById('loan-period').value = s.circulation.loanPeriod || 14;
+                    document.getElementById('renewal-limit').value = s.circulation.renewalLimit || 2;
+                    document.getElementById('max-books').value = s.circulation.maxBooks || 5;
+                    document.getElementById('fine-per-day').value = s.circulation.finePerDay || 5.00;
+                    document.getElementById('grace-period').value = s.circulation.gracePeriod || 3;
+                    document.getElementById('max-fine').value = s.circulation.maxFine || 500.00;
+                    document.getElementById('auto-renewal').checked = !!s.circulation.autoRenewal;
+                    document.getElementById('overdue-notifications').checked = !!s.circulation.overdueNotifications;
+                    document.getElementById('notification-method').value = s.notifications.notificationMethod || 'email';
+                    document.getElementById('due-reminder').value = s.notifications.dueReminder || 3;
+                    document.getElementById('overdue-reminder').value = s.notifications.overdueReminder || 7;
+                    document.getElementById('checkout-notification').checked = !!s.notifications.checkoutNotification;
+                    document.getElementById('return-notification').checked = !!s.notifications.returnNotification;
+                    document.getElementById('hold-notification').checked = !!s.notifications.holdNotification;
+                    document.getElementById('session-timeout').value = s.security.sessionTimeout || 30;
+                    document.getElementById('backup-frequency').value = s.security.backupFrequency || 'daily';
+                    document.getElementById('audit-log').checked = !!s.security.auditLog;
+                    document.getElementById('login-attempts').checked = !!s.security.loginAttempts;
+                    document.getElementById('max-attempts').value = s.security.maxAttempts || 3;
+                    document.getElementById('timezone').value = s.system.timezone || 'Asia/Manila';
+                    document.getElementById('date-format').value = s.system.dateFormat || 'DD/MM/YYYY';
+                    document.getElementById('language').value = s.system.language || 'en';
+                    document.getElementById('currency').value = s.system.currency || 'PHP';
+                    document.getElementById('maintenance-mode').checked = !!s.system.maintenanceMode;
+                    document.getElementById('debug-mode').checked = !!s.system.debugMode;
+                }
+            } catch (e) {
+                alert('Failed to load settings from server.');
+            }
+        }
+
+        // Save settings to backend
+        async function saveSettings() {
+            // ... collect settings as before ...
+            const settings = { /* ... as before ... */ };
+            try {
+                const res = await fetch('save_settings.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(settings)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Settings saved successfully!');
+                } else {
+                    alert('Failed to save settings.');
+                }
+            } catch (e) {
+                alert('Failed to save settings.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadSettingsFromBackend);
     </script>
 </body>
 </html>

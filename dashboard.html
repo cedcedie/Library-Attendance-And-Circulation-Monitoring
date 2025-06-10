@@ -14,12 +14,10 @@
             --sti-red: #d61920;
             --sti-light-blue: #3e68b2;
         }
-          
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f0f4f8;
         }
-        
         .main-header {
             background: linear-gradient(90deg, var(--sti-blue), var(--sti-light-blue));
             border-radius: 12px;
@@ -28,7 +26,6 @@
             margin-bottom: 1.5rem;
             box-shadow: 0 10px 15px -3px rgba(0, 52, 165, 0.2);
         }
-        
         .card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             border-radius: 12px;
@@ -36,21 +33,17 @@
             background: white;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
-        
         .card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-        
         .table-row:hover {
             background-color: #f9fafb;
         }
-        
         .card-stats {
             position: relative;
             overflow: hidden;
         }
-        
         .card-stats.students::before {
             content: '';
             position: absolute;
@@ -62,7 +55,6 @@
             opacity: 0.9;
             z-index: 0;
         }
-        
         .card-stats.books::before {
             content: '';
             position: absolute;
@@ -74,7 +66,6 @@
             opacity: 0.9;
             z-index: 0;
         }
-        
         .card-stats.requests::before {
             content: '';
             position: absolute;
@@ -86,7 +77,6 @@
             opacity: 0.9;
             z-index: 0;
         }
-        
         .card-stats.overdue::before {
             content: '';
             position: absolute;
@@ -98,20 +88,17 @@
             opacity: 0.9;
             z-index: 0;
         }
-        
         .stat-value {
             font-size: 2.5rem;
             font-weight: 700;
             position: relative;
             z-index: 1;
         }
-        
         .stat-label {
             font-weight: 500;
             position: relative;
             z-index: 1;
         }
-        
         .stat-icon {
             position: absolute;
             bottom: -15px;
@@ -120,37 +107,30 @@
             opacity: 0.2;
             z-index: 0;
         }
-        
         .button {
             transition: all 0.2s ease;
             transform-origin: center;
         }
-        
         .button:hover {
             transform: scale(1.05);
         }
-        
         .button-go {
             background: var(--sti-blue);
             border: none;
             color: white;
             font-weight: 500;
         }
-        
         .chart-container {
             position: relative;
         }
-        
         .table-header {
             background: var(--sti-blue);
             color: white;
         }
-        
         .current-students-card {
             background: linear-gradient(135deg, var(--sti-blue), var(--sti-light-blue));
             color: white;
         }
-        
         .chart-wrapper {
             position: relative;
             height: 250px;

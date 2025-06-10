@@ -30,25 +30,25 @@ if ($method === 'GET') {
     }
 
     try {
-        $stmt = $pdo->prepare("
-            SELECT 
-                al.id, 
-                al.student_id, 
-                s.full_name, 
-                s.program, 
-                al.date, 
-                al.time_in, 
-                al.time_out,
-                CASE 
-                    WHEN al.time_in IS NOT NULL AND al.time_out IS NULL THEN 'entry'
-                    WHEN al.time_in IS NOT NULL AND al.time_out IS NOT NULL THEN 'exit'
-                    ELSE NULL
-                END AS type
-            FROM attendance_logs al
-            JOIN students s ON al.student_id = s.id
-            WHERE al.student_id = :student_id
-            ORDER BY al.date DESC, al.time_in DESC
-        ");
+       $stmt = $pdo->prepare("
+    SELECT 
+        al.id, 
+        al.student_id, 
+        s.full_name, 
+        s.program, 
+        al.date, 
+        al.time_in, 
+        al.time_out,
+        CASE 
+            WHEN al.time_in IS NOT NULL AND al.time_out IS NULL THEN 'entry'
+            WHEN al.time_in IS NOT NULL AND al.time_out IS NOT NULL THEN 'exit'
+            ELSE NULL
+        END AS type
+    FROM attendance_logs al
+    JOIN students s ON al.student_id = s.student_id
+    WHERE al.student_id = :student_id
+    ORDER BY al.date DESC, al.time_in DESC
+");
         $stmt->execute(['student_id' => $student_id]);
         $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
