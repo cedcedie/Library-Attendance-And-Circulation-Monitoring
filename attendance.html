@@ -54,8 +54,8 @@
               <th class="px-6 py-4 font-medium">Program</th>
               <th class="px-6 py-4 font-medium">Type</th>
               <th class="px-6 py-4 font-medium">Date</th>
-              <th class="px-6 py-4 font-medium">Time</th>
-              <th class="px-6 py-4 font-medium">Logs</th>
+              <th class="px-6 py-4 font-medium">Time In</th>
+                <th class="px-6 py-4 font-medium">Time Out</th>
             </tr>
           </thead>
           <tbody id="attendanceTableBody">
@@ -90,8 +90,8 @@
   const tableBody = document.getElementById('attendanceTableBody');
   const searchInput = document.getElementById('searchInput');
 
-  const fetchAttendanceUrl = 'https://09ae-120-29-110-79.ngrok-free.app/library_system/fetch_attendance_log.php'; // for fetching logs
-  const logAttendanceUrl = 'https://09ae-120-29-110-79.ngrok-free.app/library_system/api/attendance/attendance_api.php'; // for logging attendance
+  const fetchAttendanceUrl = 'https://8c36-120-29-110-79.ngrok-free.app/library_system/fetch_attendance_logs.php'; 
+  const logAttendanceUrl = 'https://8c36-120-29-110-79.ngrok-free.app/library_system/api/attendance/attendance_api.php'; 
 
   let qrScanner;
   let isProcessingScan = false;
@@ -140,25 +140,24 @@
       tableBody.innerHTML = '';
 
       data.data.forEach(log => {
-        const row = `
-          <tr class="border-b hover:bg-gray-50">
-            <td class="px-6 py-4">${log.student_id}</td>
-            <td class="px-6 py-4">${log.full_name}</td>
-            <td class="px-6 py-4">${log.program}</td>
-            <td class="px-6 py-4">
-              <span class="px-3 py-1 text-xs font-medium rounded-full ${
-                log.type === 'entry' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'
-              }">
-                ${log.type === 'entry' ? 'Inside' : 'Outside'}
-              </span>
-            </td>
-            <td class="px-6 py-4">${log.date}</td>
-            <td class="px-6 py-4">${log.time}</td>
-            <td class="px-6 py-4">
-              <a href="borrow-attendance-history.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">View Logs</a>
-            </td>
-          </tr>
-        `;
+  const row = `
+    <tr class="border-b hover:bg-gray-50">
+      <td class="px-6 py-4">${log.student_id}</td>
+      <td class="px-6 py-4">${log.full_name}</td>
+      <td class="px-6 py-4">${log.program}</td>
+      <td class="px-6 py-4">
+        <span class="px-3 py-1 text-xs font-medium rounded-full ${
+          log.type === 'entry' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'
+        }">
+          ${log.type === 'entry' ? 'Inside' : 'Outside'}
+        </span>
+      </td>
+      <td class="px-6 py-4">${log.date}</td>
+      <td class="px-6 py-4">${log.type === 'entry' ? log.time_in : '-'}</td>
+      <td class="px-6 py-4">${log.type === 'exit' ? log.time_out : '-'}</td>
+    </tr>
+  `;
+ 
         tableBody.insertAdjacentHTML('beforeend', row);
       });
     } catch (error) {
@@ -206,23 +205,20 @@
           const displayType = selectedType === 'entry' ? 'Inside' : 'Outside';
           const colorClass = selectedType === 'entry' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800';
 
-          const row = `
-            <tr class="border-b hover:bg-gray-50">
-              <td class="px-6 py-4">${student.student_id}</td>
-              <td class="px-6 py-4">${student.full_name}</td>
-              <td class="px-6 py-4">${student.program}</td>
-              <td class="px-6 py-4">
-                <span class="px-3 py-1 text-xs font-medium rounded-full ${colorClass}">
-                  ${displayType}
-                </span>
-              </td>
-              <td class="px-6 py-4">${dateStr}</td>
-              <td class="px-6 py-4">${timeStr}</td>
-              <td class="px-6 py-4">
-                <a href="borrow-attendance-history.html" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300">View Logs</a>
-              </td>
-            </tr>
-          `;
+            const row = `
+  <tr class="border-b hover:bg-gray-50">
+    <td class="px-6 py-4">${student.student_id}</td>
+    <td class="px-6 py-4">${student.full_name}</td>
+    <td class="px-6 py-4">${student.program}</td>
+    <td class="px-6 py-4">
+      <span class="px-3 py-1 text-xs font-medium rounded-full ${colorClass}">
+        ${displayType}
+      </span>
+    </td>
+    <td class="px-6 py-4">${dateStr}</td>
+    <td class="px-6 py-4">${timeStr}</td>
+  </tr>
+`;
           tableBody.insertAdjacentHTML('afterbegin', row);
 
           alert(`${student.full_name} logged as ${displayType}`);
@@ -236,7 +232,6 @@
         }
       },
       errorMessage => {
-        // Optional scan error handling
       }
     );
   });
@@ -278,8 +273,6 @@
   }
 
   searchInput.addEventListener("input", debounce(filterTable, 200));
-
-  // ✅ Trigger fetch on page load
   window.addEventListener('DOMContentLoaded', loadAttendanceLogs);
 </script>
 

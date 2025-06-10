@@ -39,8 +39,6 @@ if (!isset($input['username']) || !isset($input['password'])) {
 
 $username = $input['username'];
 $password = $input['password'];
-
-// Query DB
 try {
     $stmt = $pdo->prepare("SELECT * FROM students WHERE username = :username LIMIT 1");
     $stmt->execute(['username' => $username]);
@@ -50,7 +48,7 @@ try {
         echo json_encode([
     'status' => 'success',
     'message' => 'Login successful',
-    'student_id' => $user['id'],
+    'student_id' => $user['student_id'], 
     'name' => $user['name'],
     'username' => $user['username']
 ]);

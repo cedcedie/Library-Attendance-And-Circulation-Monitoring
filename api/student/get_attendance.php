@@ -23,7 +23,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 if ($method === 'GET') {
     $student_id = $_GET['student_id'] ?? '';
 
-    if (empty($student_id) || !is_numeric($student_id)) {
+    if (empty($student_id)) {
         http_response_code(400);
         echo json_encode(['status' => 'error', 'message' => 'Invalid student ID']);
         exit;
